@@ -1,16 +1,16 @@
-"use client";
+﻿"use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { AuthUser } from "@/types";
-import { AuthService } from "@/services/auth.service";
-import { useRouter } from "next/navigation";
+import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { UserRole } from "@/types";
+import { AuthService, AuthUser } from "@/services/auth.service";
 
 interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  loginAsFounder: (email: string) => Promise<void>;
+  isLoading: boolean;
+  login: (email: string, pass: string) => Promise<boolean>;
   logout: () => Promise<void>;
+  loginAsFounder: (email?: string) => Promise<boolean>;
   refreshUser: () => Promise<void>;
 }
 
@@ -19,45 +19,53 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     try {
       const currentUser = await AuthService.getCurrentUser();
       setUser(currentUser);
-    } catch {
+    } catch (err) {
+      console.error("Failed to refresh user:", err);
       setUser(null);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     refreshUser();
-  }, []);
+  }, [refreshUser]);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, pass: string): Promise<boolean> => {
     setLoading(true);
     try {
-      const res = await AuthService.loginWithEmail(email, password);
-      if (res.success && res.user) {
-        setUser(res.user);
-        return { success: true };
+      const loggedInUser = await AuthService.login(email, pass);
+      if (loggedInUser) {
+        setUser(loggedInUser);
+        return true;
       }
-      return { success: false, error: res.error || "Invalid credentials" };
+      return false;
+    } catch (err) {
+      console.error("Login failed:", err);
+      return false;
     } finally {
       setLoading(false);
     }
   };
 
-  const loginAsFounder = async (email: string) => {
+  const loginAsFounder = async (email?: string): Promise<boolean> => {
     setLoading(true);
     try {
-      const res = await AuthService.loginAsFounder(email);
-      if (res.success && res.user) {
-        setUser(res.user);
-        router.push("/dashboard");
+      const targetEmail = email || "admin@uxitech.in";
+      const founderUser = await AuthService.loginAsFounder(targetEmail);
+      if (founderUser) {
+        setUser(founderUser);
+        return true;
       }
+      return false;
+    } catch (err) {
+      console.error("loginAsFounder failed:", err);
+      return false;
     } finally {
       setLoading(false);
     }
@@ -68,14 +76,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await AuthService.logout();
       setUser(null);
-      router.push("/login");
+      window.location.assign("/login");
+    } catch (err) {
+      console.error("Logout failed:", err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, loginAsFounder, logout, refreshUser }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        isLoading: loading,
+        login,
+        logout,
+        loginAsFounder,
+        refreshUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -83,7 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;

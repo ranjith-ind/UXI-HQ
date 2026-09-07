@@ -1,8 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
-import { NotificationService } from "@/services/notification.service";
+﻿"use client";
+
+import { useEffect, useState, useCallback } from "react";
 import { NotificationWithDetails } from "@/types/notification";
-import { useRealtimeTable } from "./use-realtime";
-import { useAuth } from "./use-auth";
+import { NotificationService } from "@/services/notification.service";
+import { useAuth } from "@/hooks/use-auth";
+import { useRealtimeTable } from "@/hooks/use-realtime";
 
 export function useNotifications() {
   const { user } = useAuth();
@@ -11,82 +13,77 @@ export function useNotifications() {
   const [loading, setLoading] = useState<boolean>(true);
 
   const fetchNotifications = useCallback(async () => {
+    if (!user) return;
     try {
-      const data = await NotificationService.getNotifications({
-        recipientId: user?.id,
-        limit: 20,
-      });
+      const data = await NotificationService.getNotifications({ recipientId: user.id });
       setNotifications(data);
-      setUnreadCount(data.filter((n) => !n.is_read).length);
-    } catch (err) {
-      console.warn("Failed to fetch notifications:", err);
+      const count = await NotificationService.getUnreadCount(user.id);
+      setUnreadCount(count);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
     } finally {
       setLoading(false);
     }
-  }, [user?.id]);
+  }, [user]);
 
   useEffect(() => {
     fetchNotifications();
   }, [fetchNotifications]);
 
-  // Realtime subscription for incoming notifications
-  useRealtimeTable({
+  useRealtimeTable<NotificationWithDetails>({
     table: "notifications",
-    onInsert: (newNotif) => {
+    onInsert: (newNotif: NotificationWithDetails) => {
       if (!user || newNotif.recipient_id === user.id) {
         setNotifications((prev) => [newNotif, ...prev]);
-        setUnreadCount((c) => c + 1);
+        if (!newNotif.is_read) {
+          setUnreadCount((prev) => prev + 1);
+        }
       }
     },
-    onUpdate: (updatedNotif) => {
+    onUpdate: (updatedNotif: NotificationWithDetails) => {
       setNotifications((prev) =>
         prev.map((n) => (n.id === updatedNotif.id ? { ...n, ...updatedNotif } : n))
       );
-      setUnreadCount((prev) => {
-        const remaining = notifications.map((n) =>
-          n.id === updatedNotif.id ? { ...n, ...updatedNotif } : n
-        );
-        return remaining.filter((n) => !n.is_read).length;
-      });
+      if (updatedNotif.is_read) {
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+      }
     },
     onDelete: (deletedNotif) => {
-      setNotifications((prev) => prev.filter((n) => n.id !== deletedNotif.id));
+      if (deletedNotif.id) {
+        setNotifications((prev) => prev.filter((n) => n.id !== deletedNotif.id));
+      }
     },
   });
 
   const markAsRead = async (id: string) => {
-    // Optimistic UI update
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
-    );
-    setUnreadCount((c) => Math.max(0, c - 1));
-    await NotificationService.markAsRead(id);
+    try {
+      await NotificationService.markAsRead(id);
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
+      );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
   };
 
   const markAllAsRead = async () => {
-    // Optimistic UI update
-    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
-    setUnreadCount(0);
-    await NotificationService.markAllAsRead(user?.id);
-  };
-
-  const deleteNotification = async (id: string) => {
-    // Optimistic UI update
-    const target = notifications.find((n) => n.id === id);
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-    if (target && !target.is_read) {
-      setUnreadCount((c) => Math.max(0, c - 1));
+    if (!user) return;
+    try {
+      await NotificationService.markAllAsRead(user.id);
+      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+      setUnreadCount(0);
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
     }
-    await NotificationService.deleteNotification(id);
   };
 
   return {
     notifications,
     unreadCount,
     loading,
-    refresh: fetchNotifications,
     markAsRead,
     markAllAsRead,
-    deleteNotification,
+    refresh: fetchNotifications,
   };
 }
