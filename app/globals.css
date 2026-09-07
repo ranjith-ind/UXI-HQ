@@ -1,0 +1,177 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Page & Surface Washes */
+    --background: #FFFFFF;
+    --surface: #F7F9FC;
+    
+    /* Card Surfaces */
+    --card: #FFFFFF;
+    --card-foreground: #0F172A;
+    
+    --popover: #FFFFFF;
+    --popover-foreground: #0F172A;
+    
+    /* UXI Primary SaaS Blue Accent */
+    --primary: #2451EB;
+    --primary-hover: #1D41D0;
+    --primary-soft: #EFF4FE;
+    --primary-foreground: #FFFFFF;
+    
+    /* Soft Secondary Surfaces */
+    --secondary: #F7F9FC;
+    --secondary-foreground: #0F172A;
+    
+    /* Neutral & Muted Tones */
+    --muted: #F7F9FC;
+    --muted-foreground: #5B6472;
+    --subtle-foreground: #8A93A3;
+    
+    --accent: #EFF4FE;
+    --accent-foreground: #2451EB;
+    
+    --destructive: #EF4444;
+    --destructive-foreground: #FFFFFF;
+    
+    /* Hairline Border System */
+    --border: #E6EAF2;
+    --border-strong: #D6DCE8;
+    --input: #FFFFFF;
+    --ring: #2451EB;
+    --radius: 0.75rem; /* 12px corner radius */
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    letter-spacing: -0.014em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sans), system-ui, sans-serif;
+    letter-spacing: -0.024em;
+  }
+}
+
+/* Tabular number font style for financial metrics and IDs */
+.font-tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #E6EAF2;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #D6DCE8;
+}
+
+/* Hairline Card Elevation Reset */
+.shadow-subtle {
+  box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.03);
+}
+
+.shadow-card {
+  box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.03);
+}
+
+.shadow-dropdown {
+  box-shadow: 0 10px 24px -4px rgba(15, 23, 42, 0.08), 0 4px 8px -2px rgba(15, 23, 42, 0.02);
+}
+
+/* Transitions */
+.transition-smooth {
+  transition: all 150ms ease-in-out;
+}
+
+/* Dense Bordered SaaS Table Reset */
+.saas-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.saas-table th {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #5B6472;
+  padding: 10px 16px;
+  border-bottom: 1px solid #E6EAF2;
+  background-color: #F7F9FC;
+}
+
+.saas-table td {
+  font-size: 13px;
+  color: #0F172A;
+  padding: 12px 16px;
+  border-bottom: 1px solid #E6EAF2;
+  vertical-align: middle;
+}
+
+.saas-table tr:last-child td {
+  border-bottom: none;
+}
+
+.saas-table tr:hover td {
+  background-color: #F7F9FC;
+}
+
+/* Scalemorphism Micro-Interaction Utilities */
+.scalemorphic-card {
+  transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1), border-color 160ms ease, box-shadow 160ms ease;
+  will-change: transform;
+}
+
+.scalemorphic-card:hover {
+  transform: scale(1.008) translateY(-1px);
+  border-color: #D6DCE8;
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+}
+
+.scalemorphic-card:active {
+  transform: scale(0.995);
+}
+
+.scalemorphic-button {
+  transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1), background-color 140ms ease, border-color 140ms ease;
+  will-change: transform;
+}
+
+.scalemorphic-button:hover {
+  transform: scale(1.02);
+}
+
+.scalemorphic-button:active {
+  transform: scale(0.97);
+}
+
+.scalemorphic-item {
+  transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1), background-color 140ms ease;
+  will-change: transform;
+}
+
+.scalemorphic-item:hover {
+  transform: scale(1.01);
+}
+
+.scalemorphic-item:active {
+  transform: scale(0.98);
+}
