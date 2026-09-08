@@ -1,69 +1,61 @@
-import * as React from "react";
-import Image from "next/image";
+/* eslint-disable @next/next/no-img-element */
+"use client";
+
+import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface AvatarProps {
   src?: string | null;
-  name: string;
+  name?: string;
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
   className?: string;
-  size?: "sm" | "md" | "lg" | "xl";
   role?: string;
 }
 
-const sizeClasses = {
-  sm: "h-7 w-7 text-xs",
-  md: "h-9 w-9 text-sm",
-  lg: "h-11 w-11 text-base",
-  xl: "h-14 w-14 text-lg font-semibold",
+const sizeMap = {
+  xs: "w-6 h-6 text-[10px]",
+  sm: "w-8 h-8 text-xs",
+  md: "w-10 h-10 text-sm",
+  lg: "w-12 h-12 text-base",
+  xl: "w-16 h-16 text-lg font-bold",
 };
 
-export function Avatar({ src, name, className, size = "md" }: AvatarProps) {
-  const [imageError, setImageError] = React.useState(false);
+export function Avatar({
+  src,
+  name = "User",
+  size = "md",
+  className,
+}: AvatarProps) {
+  const [imageError, setImageError] = useState(false);
 
-  // Generate initials
-  const initials = name
-    .split(" ")
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-
-  // Vibrant gradients with clean white borders
-  const colors = [
-    "from-blue-600 to-indigo-600",
-    "from-cyan-600 to-blue-600",
-    "from-violet-600 to-purple-600",
-    "from-sky-600 to-blue-700",
-    "from-emerald-600 to-teal-700",
-  ];
-  const charCode = name.charCodeAt(0) || 0;
-  const bgGradient = colors[charCode % colors.length];
+  const initials =
+    (name || "U")
+      .trim()
+      .split(/\s+/)
+      .map((n) => n[0])
+      .filter(Boolean)
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "U";
 
   return (
     <div
       className={cn(
-        "relative inline-flex items-center justify-center shrink-0 rounded-full border border-slate-200 overflow-hidden shadow-sm font-semibold text-white",
-        sizeClasses[size],
+        "relative rounded-full overflow-hidden flex items-center justify-center font-semibold select-none shrink-0 bg-slate-100 text-slate-700 border border-slate-200/80 shadow-2xs font-display",
+        sizeMap[size] || sizeMap.md,
         className
       )}
     >
       {src && !imageError ? (
-        <Image
+        <img
           src={src}
           alt={name}
-          fill
-          className="object-cover"
           onError={() => setImageError(true)}
+          className="object-cover w-full h-full"
+          loading="lazy"
         />
       ) : (
-        <div
-          className={cn(
-            "w-full h-full flex items-center justify-center bg-gradient-to-br tracking-wider",
-            bgGradient
-          )}
-        >
-          {initials}
-        </div>
+        <span>{initials}</span>
       )}
     </div>
   );

@@ -2,238 +2,194 @@
 
 import React from "react";
 import Link from "next/link";
-import {
-  FileText,
-  Send,
-  CreditCard,
-  Edit2,
-  Trash2,
-  XCircle,
-  MoreVertical,
-  Calendar,
-  AlertTriangle,
-  CheckCircle2,
-  ArrowUpRight,
-} from "lucide-react";
 import { InvoiceWithDetails } from "@/types/invoice";
-import { InvoiceStatusBadge } from "./invoice-status-badge";
-import { InvoiceTypeBadge } from "./invoice-type-badge";
-import { formatCurrency, formatDate, cn } from "@/lib/utils";
-import { Dropdown, DropdownItem, DropdownSeparator } from "@/components/ui/dropdown";
-import { useAuth } from "@/hooks/use-auth";
+import {
+  DataTable,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/data-table";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { formatCurrency, formatDate } from "@/lib/utils";
+import {
+  ArrowUpRight,
+  FileText,
+  CreditCard,
+  Edit,
+  Trash2,
+  Send,
+  Ban,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-import { DataTable } from "@/components/ui/data-table";
-
-interface InvoiceTableProps {
+export interface InvoiceTableProps {
   invoices: InvoiceWithDetails[];
   loading?: boolean;
-  onEdit?: (invoice: InvoiceWithDetails) => void;
-  onDelete?: (invoice: InvoiceWithDetails) => void;
-  onMarkSent?: (invoice: InvoiceWithDetails) => void;
   onRecordPayment?: (invoice: InvoiceWithDetails) => void;
-  onCancel?: (invoice: InvoiceWithDetails) => void;
+  onEdit?: (invoice: InvoiceWithDetails) => void;
+  onDelete?: (invoice: InvoiceWithDetails) => void | Promise<void>;
+  onMarkSent?: (invoice: InvoiceWithDetails) => void | Promise<void>;
+  onCancel?: (invoice: InvoiceWithDetails) => void | Promise<void>;
+  onStatusChange?: (invoice: InvoiceWithDetails, status: string) => void;
+  onDownloadPdf?: (invoice: InvoiceWithDetails) => void;
 }
 
 export function InvoiceTable({
   invoices,
-  loading,
+  loading = false,
+  onRecordPayment,
   onEdit,
   onDelete,
   onMarkSent,
-  onRecordPayment,
   onCancel,
 }: InvoiceTableProps) {
-  const { user } = useAuth();
-  const canManage = user?.role === "Admin" || user?.role === "Manager";
-
   if (loading) {
     return (
-      <div className="rounded-xl border border-[#E6EAF2] bg-white p-6 space-y-3">
-        {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="h-12 bg-[#F7F9FC] rounded-lg animate-pulse" />
-        ))}
+      <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm">
+        <div className="space-y-3">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div
+              key={i}
+              className="h-12 rounded-xl bg-slate-50 border border-slate-100 animate-pulse"
+            />
+          ))}
+        </div>
       </div>
     );
   }
 
-  if (invoices.length === 0) {
+  if (!invoices || invoices.length === 0) {
     return (
-      <div className="p-12 text-center rounded-xl border border-[#E6EAF2] bg-white space-y-3">
-        <FileText className="w-10 h-10 text-[#8A93A3] mx-auto" />
-        <h3 className="text-base font-bold text-[#0F172A]">No Invoices Found</h3>
-        <p className="text-xs text-[#5B6472] max-w-sm mx-auto">
-          No invoices match your selected filters. Create an invoice or adjust your filter query.
+      <div className="p-12 text-center rounded-2xl border border-slate-200/90 bg-white shadow-sm">
+        <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 mx-auto mb-3">
+          <FileText className="w-6 h-6" />
+        </div>
+        <h4 className="text-sm font-bold text-slate-900 font-display">
+          No invoice records found
+        </h4>
+        <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
+          Create an invoice to start tracking client billing, milestone payments, and tax receipts.
         </p>
       </div>
     );
   }
 
   return (
-    <DataTable className="font-sans">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs saas-table">
-          <thead className="border-b border-[#E6EAF2] bg-[#F7F9FC] text-[11px] font-semibold uppercase tracking-wider text-[#5B6472]">
-            <tr>
-              <th scope="col" className="px-4 py-3">
-                Invoice Number
-              </th>
-              <th scope="col" className="px-4 py-3">
-                Client & Project
-              </th>
-              <th scope="col" className="px-4 py-3">
-                Type
-              </th>
-              <th scope="col" className="px-4 py-3">
-                Status
-              </th>
-              <th scope="col" className="px-4 py-3">
-                Issue / Due Date
-              </th>
-              <th scope="col" className="px-4 py-3 text-right">
-                Total Amount
-              </th>
-              <th scope="col" className="px-4 py-3 text-right">
-                Due Amount
-              </th>
-              <th scope="col" className="px-4 py-3 text-right">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[#E6EAF2]">
-            {invoices.map((inv) => (
-              <tr
-                key={inv.id}
-                className="hover:bg-[#F7F9FC] transition-colors group cursor-pointer"
-              >
-                {/* Invoice Number */}
-                <td className="px-4 py-3 font-mono font-bold text-[#0F172A] font-tabular">
-                  <Link
-                    href={`/finance/invoices/${inv.id}`}
-                    className="group-hover:text-[#2451EB] transition-colors flex items-center gap-1.5"
-                  >
-                    <span>{inv.invoice_number}</span>
-                    <ArrowUpRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </Link>
-                </td>
+    <div className="rounded-2xl border border-slate-200/90 bg-white overflow-hidden shadow-sm">
+      <DataTable>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Invoice #</TableHead>
+            <TableHead>Client</TableHead>
+            <TableHead>Project</TableHead>
+            <TableHead>Amount</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Due Date</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {invoices.map((inv) => {
+            const clientName = inv.client_company || inv.client_name || "Client";
+            const projectName = inv.project_name || "—";
+            const amount = inv.total_amount ?? 0;
+            const dueDate = inv.due_date || inv.issue_date;
 
-                {/* Client & Project */}
-                <td className="px-4 py-3">
-                  <p className="font-semibold text-[#0F172A] truncate">
-                    {inv.client_company}
-                  </p>
-                  <p className="text-[11px] text-[#5B6472] truncate">
-                    {inv.project_name || "General Invoice"}
-                  </p>
-                </td>
-
-                {/* Type Badge */}
-                <td className="px-4 py-3">
-                  <InvoiceTypeBadge type={inv.invoice_type} size="sm" />
-                </td>
-
-                {/* Status Badge */}
-                <td className="px-4 py-3">
-                  <InvoiceStatusBadge status={inv.invoice_status} size="sm" />
-                </td>
-
-                {/* Dates */}
-                <td className="px-4 py-3 font-medium">
-                  <div className="space-y-0.5">
-                    <p className="text-[#0F172A] font-tabular">{formatDate(inv.issue_date)}</p>
-                    <p
-                      className={cn(
-                        "text-[10px] font-tabular",
-                        inv.is_overdue
-                          ? "text-rose-700 font-semibold"
-                          : "text-[#8A93A3]"
-                      )}
-                    >
-                      Due: {formatDate(inv.due_date || "")}
-                    </p>
-                  </div>
-                </td>
-
-                {/* Total Amount */}
-                <td className="px-4 py-3 text-right font-mono font-bold text-[#0F172A] font-tabular">
-                  {formatCurrency(inv.total_amount, "INR")}
-                </td>
-
-                {/* Due Amount */}
-                <td className="px-4 py-3 text-right font-mono font-tabular">
-                  {inv.amount_due > 0 ? (
-                    <span className="font-bold text-[#0F172A]">
-                      {formatCurrency(inv.amount_due, "INR")}
-                    </span>
-                  ) : (
-                    <span className="text-emerald-700 font-semibold">Paid in full</span>
-                  )}
-                </td>
-
-                {/* Actions Dropdown */}
-                <td className="px-5 py-4 text-right" onClick={(e) => e.stopPropagation()}>
-                  <Dropdown
-                    align="right"
-                    trigger={
-                      <button
-                        aria-label="Actions"
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            return (
+              <TableRow key={inv.id}>
+                <TableCell className="font-bold text-slate-900 font-mono">
+                  {inv.invoice_number || inv.id.slice(0, 8)}
+                </TableCell>
+                <TableCell className="font-semibold text-slate-800">
+                  {clientName}
+                </TableCell>
+                <TableCell className="text-slate-600">
+                  {projectName}
+                </TableCell>
+                <TableCell className="font-extrabold text-slate-900 font-tabular">
+                  {formatCurrency(amount, "INR")}
+                </TableCell>
+                <TableCell>
+                  <StatusBadge status={inv.invoice_status} size="sm" />
+                </TableCell>
+                <TableCell className="text-slate-500 font-mono text-[11px]">
+                  {dueDate ? formatDate(dueDate) : "—"}
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex items-center justify-end gap-1">
+                    {onMarkSent && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onMarkSent(inv)}
+                        className="h-8 px-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-xs font-semibold"
+                        title="Mark as Sent"
                       >
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
-                    }
-                  >
-                    <Link href={`/finance/invoices/${inv.id}`}>
-                      <DropdownItem>
-                        <FileText className="w-4 h-4 text-blue-600 mr-2" />
-                        <span>View Invoice</span>
-                      </DropdownItem>
+                        <Send className="w-3.5 h-3.5 mr-1" />
+                        <span>Send</span>
+                      </Button>
+                    )}
+                    {onRecordPayment && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onRecordPayment(inv)}
+                        className="h-8 px-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 text-xs font-semibold"
+                        title="Record Payment"
+                      >
+                        <CreditCard className="w-3.5 h-3.5 mr-1" />
+                        <span>Pay</span>
+                      </Button>
+                    )}
+                    {onCancel && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onCancel(inv)}
+                        className="h-8 w-8 p-0 text-amber-500 hover:text-amber-700 hover:bg-amber-50"
+                        title="Cancel Invoice"
+                      >
+                        <Ban className="w-3.5 h-3.5" />
+                      </Button>
+                    )}
+                    {onEdit && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onEdit(inv)}
+                        className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700"
+                        title="Edit Invoice"
+                      >
+                        <Edit className="w-3.5 h-3.5" />
+                      </Button>
+                    )}
+                    {onDelete && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onDelete(inv)}
+                        className="h-8 w-8 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+                        title="Delete Invoice"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    )}
+                    <Link
+                      href={`/finance/invoices/${inv.id}`}
+                      className="inline-flex items-center gap-0.5 text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline px-2 py-1"
+                    >
+                      <span>View</span>
+                      <ArrowUpRight className="w-3.5 h-3.5" />
                     </Link>
-
-                    {canManage && inv.invoice_status === "Draft" && onMarkSent && (
-                      <DropdownItem onClick={() => onMarkSent(inv)}>
-                        <Send className="w-4 h-4 text-blue-600 mr-2" />
-                        <span>Mark as Sent</span>
-                      </DropdownItem>
-                    )}
-
-                    {canManage && inv.amount_due > 0 && inv.invoice_status !== "Cancelled" && onRecordPayment && (
-                      <DropdownItem onClick={() => onRecordPayment(inv)}>
-                        <CreditCard className="w-4 h-4 text-emerald-600 mr-2" />
-                        <span>Record Payment</span>
-                      </DropdownItem>
-                    )}
-
-                    {canManage && onEdit && (
-                      <DropdownItem onClick={() => onEdit(inv)}>
-                        <Edit2 className="w-4 h-4 text-slate-500 mr-2" />
-                        <span>Edit Invoice</span>
-                      </DropdownItem>
-                    )}
-
-                    {canManage && inv.invoice_status !== "Cancelled" && onCancel && (
-                      <DropdownItem onClick={() => onCancel(inv)}>
-                        <XCircle className="w-4 h-4 text-amber-500 mr-2" />
-                        <span>Cancel Invoice</span>
-                      </DropdownItem>
-                    )}
-
-                    {canManage && onDelete && (
-                      <>
-                        <DropdownSeparator />
-                        <DropdownItem onClick={() => onDelete(inv)} destructive>
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          <span>Delete Invoice</span>
-                        </DropdownItem>
-                      </>
-                    )}
-                  </Dropdown>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </DataTable>
+                  </div>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </DataTable>
+    </div>
   );
 }
