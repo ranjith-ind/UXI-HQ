@@ -51,6 +51,10 @@ export interface Invoice {
 }
 
 export interface InvoiceWithDetails extends Invoice {
+  status: any;
+  client: any;
+  project: any;
+  payment_status: string;
   client_name: string;
   client_company: string;
   client_email: string;

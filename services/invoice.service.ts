@@ -334,6 +334,10 @@ export class InvoiceService {
 
       return {
         ...inv,
+        status: inv.invoice_status,
+        client: client || null,
+        project: project || null,
+        payment_status: inv.amount_due <= 0 ? "Paid" : (inv.amount_paid > 0 ? "Partially Paid" : "Unpaid"),
         client_name: client?.full_name || "Enterprise Client",
         client_company: client?.company_name || client?.full_name || "Enterprise Client",
         client_email: client?.email || "billing@client.com",
