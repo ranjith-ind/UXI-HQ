@@ -14,7 +14,7 @@ export class AuthService {
   static async login(email: string, pass: string): Promise<AuthUser | null> {
     if (!isSupabaseConfigured()) {
       return {
-        id: "demo-admin-id",
+        id: '',
         email,
         fullName: "Ranjith Kumar",
         role: "Admin",
@@ -109,7 +109,7 @@ export class AuthService {
   static async getCurrentUser(): Promise<AuthUser | null> {
     if (!isSupabaseConfigured()) {
       return {
-        id: "demo-admin-id",
+        id: '',
         email: "admin@uxitech.in",
         fullName: "Ranjith Kumar",
         role: "Admin",

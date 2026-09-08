@@ -1,3 +1,4 @@
+import { ClientCacheCleaner } from "@/components/providers/client-cache-cleaner";
 import type { Metadata } from "next";
 import { fontSans } from "@/app/fonts";
 import "./globals.css";
@@ -22,6 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${fontSans.variable} scroll-smooth`}>
       <body className="min-h-screen bg-white text-slate-900 font-sans antialiased selection:bg-[#2451EB] selection:text-white">
+        <ClientCacheCleaner />
         <RootShell>{children}</RootShell>
       </body>
     </html>
