@@ -54,14 +54,13 @@ export class LeadService {
   }
 
   private static getLocalActivities(): LeadActivity[] {
-    if (typeof window === "undefined") return INITIAL_LEAD_ACTIVITIES;
+    if (typeof window === "undefined") return [];
     try {
       const stored = localStorage.getItem(LOCAL_LEAD_ACTIVITIES_KEY);
       if (stored) return JSON.parse(stored);
-      localStorage.setItem(LOCAL_LEAD_ACTIVITIES_KEY, JSON.stringify(INITIAL_LEAD_ACTIVITIES));
-      return INITIAL_LEAD_ACTIVITIES;
+      return [];
     } catch {
-      return INITIAL_LEAD_ACTIVITIES;
+      return [];
     }
   }
 
@@ -75,14 +74,13 @@ export class LeadService {
   }
 
   private static getLocalFollowUps(): LeadFollowUp[] {
-    if (typeof window === "undefined") return INITIAL_LEAD_FOLLOWUPS;
+    if (typeof window === "undefined") return [];
     try {
       const stored = localStorage.getItem(LOCAL_LEAD_FOLLOWUPS_KEY);
       if (stored) return JSON.parse(stored);
-      localStorage.setItem(LOCAL_LEAD_FOLLOWUPS_KEY, JSON.stringify(INITIAL_LEAD_FOLLOWUPS));
-      return INITIAL_LEAD_FOLLOWUPS;
+      return [];
     } catch {
-      return INITIAL_LEAD_FOLLOWUPS;
+      return [];
     }
   }
 
@@ -138,17 +136,13 @@ export class LeadService {
         }
 
         const { data, error } = await query;
-        if (error) {
-          console.error("Supabase lead query error:", error);
-          rawLeads = [];
-        } else if (!data) {
-          rawLeads = [];
+        if (error || !data) {
+          rawLeads = this.getLocalLeads();
         } else {
           rawLeads = data as unknown as Lead[];
         }
-      } catch (err) {
-        console.error("Supabase lead query exception:", err);
-        rawLeads = [];
+      } catch {
+        rawLeads = this.getLocalLeads();
       }
     } else {
       rawLeads = this.getLocalLeads();

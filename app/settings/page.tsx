@@ -204,8 +204,8 @@ export default function SettingsPage() {
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                   <span className="font-bold text-slate-700 font-display">Supabase DB</span>
                 </div>
-                <span className="px-2 py-0.2 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  {hasSupabase ? "Connected" : "Local Mock"}
+                <span className={`px-2 py-0.2 rounded text-[10px] font-bold ${hasSupabase ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-rose-50 text-rose-700 border border-rose-200"}`}>
+                  {hasSupabase ? "Connected" : "Disconnected"}
                 </span>
               </div>
 

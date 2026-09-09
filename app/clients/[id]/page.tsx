@@ -50,6 +50,7 @@ import { LeadWithDetails } from "@/types/lead";
 import { formatCurrency, formatDate, formatRelativeTime } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/components/ui/toast";
+import { useRealtimeTables } from "@/hooks/use-realtime";
 
 export default function ClientDetailPage({
   params,
@@ -127,6 +128,12 @@ export default function ClientDetailPage({
   useEffect(() => {
     loadClientData();
   }, [loadClientData]);
+
+  // Realtime subscription for client, projects, invoices, payments, expenses, leads
+  useRealtimeTables({
+    tables: ["clients", "projects", "invoices", "payments", "expenses", "leads"],
+    onChange: loadClientData,
+  });
 
   const handleEditSubmit = async (formData: ClientFormData) => {
     const actorName = user?.fullName || "Ranjith";

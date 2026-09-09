@@ -37,6 +37,7 @@ import { ActivityItem } from "@/types";
 import { formatCurrency, formatDate, formatRelativeTime, cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/components/ui/toast";
+import { useRealtimeTables } from "@/hooks/use-realtime";
 
 export default function InvoiceDetailPage({
   params,
@@ -93,6 +94,12 @@ export default function InvoiceDetailPage({
   useEffect(() => {
     loadInvoice();
   }, [loadInvoice]);
+
+  // Realtime subscription for invoice, items, and payments
+  useRealtimeTables({
+    tables: ["invoices", "invoice_items", "payments", "activity_logs"],
+    onChange: loadInvoice,
+  });
 
   const handleEditSubmit = async (formData: InvoiceFormData) => {
     const res = await InvoiceService.updateInvoice(id, formData, user?.fullName || "Ranjith");

@@ -20,6 +20,7 @@ import {
 } from "@/types/activity";
 import { useToast } from "@/components/ui/toast";
 import { StatsCard } from "@/components/dashboard/stats-card";
+import { useRealtimeTables } from "@/hooks/use-realtime";
 
 export default function ActivityPage() {
   const { error: toastError } = useToast();
@@ -63,6 +64,12 @@ export default function ActivityPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Realtime subscription for activity logs
+  useRealtimeTables({
+    tables: ["activity_logs"],
+    onChange: loadData,
+  });
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-12 font-sans">

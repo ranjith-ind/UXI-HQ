@@ -57,7 +57,7 @@ export function BusinessAttentionWidget() {
           <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
           <div className="min-w-0">
             <span className="text-xs sm:text-sm font-semibold text-[#0F172A] block truncate font-tabular">
-              {stats ? `${stats.overdueTasks} Overdue` : "1 Overdue"}
+              {stats ? `${stats.overdueTasks} Overdue` : "0 Overdue"}
             </span>
             <span className="text-[11px] text-[#5B6472] block truncate">Tasks</span>
           </div>
@@ -70,7 +70,7 @@ export function BusinessAttentionWidget() {
           <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
           <div className="min-w-0">
             <span className="text-xs sm:text-sm font-semibold text-[#0F172A] block truncate font-tabular">
-              {stats ? `${stats.overduePayments} Overdue` : "1 Overdue"}
+              {stats ? `${stats.overduePayments} Overdue` : "0 Overdue"}
             </span>
             <span className="text-[11px] text-[#5B6472] block truncate">Invoices</span>
           </div>
@@ -83,7 +83,7 @@ export function BusinessAttentionWidget() {
           <span className="w-2 h-2 rounded-full bg-[#2451EB] shrink-0" />
           <div className="min-w-0">
             <span className="text-xs sm:text-sm font-semibold text-[#0F172A] block truncate font-tabular">
-              {stats ? `${stats.followupsDueToday} Due Today` : "1 Due Today"}
+              {stats ? `${stats.followupsDueToday} Due Today` : "0 Due Today"}
             </span>
             <span className="text-[11px] text-[#5B6472] block truncate">Follow-ups</span>
           </div>
@@ -96,7 +96,7 @@ export function BusinessAttentionWidget() {
           <span className="w-2 h-2 rounded-full bg-purple-500 shrink-0" />
           <div className="min-w-0">
             <span className="text-xs sm:text-sm font-semibold text-[#0F172A] block truncate font-tabular">
-              {stats ? `${stats.teamOverload} Overloaded` : "1 Overloaded"}
+              {stats ? `${stats.teamOverload} Overloaded` : "0 Overloaded"}
             </span>
             <span className="text-[11px] text-[#5B6472] block truncate">Team Capacity</span>
           </div>

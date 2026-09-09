@@ -14,6 +14,7 @@ const LOCAL_ACTIVITY_KEY = "uxi_activity_store";
 
 export const INITIAL_CLIENTS: Client[] = [];
 
+
 export class ClientService {
   private static getLocalClients(): Client[] {
     if (typeof window === "undefined") return [];
@@ -27,7 +28,6 @@ export class ClientService {
       return [];
     }
   }
-
 
   private static saveLocalClients(clients: Client[]) {
     if (typeof window === "undefined") return;
@@ -109,17 +109,15 @@ export class ClientService {
         }
 
         const { data, error } = await query;
-        if (error) {
-          console.error("Supabase fetch clients error:", error);
-          clients = [];
-        } else if (!data) {
-          clients = [];
+        if (error || !data) {
+          console.warn("Supabase fetch clients error, fallback to local:", error);
+          clients = this.getLocalClients();
         } else {
           clients = data as unknown as Client[];
         }
       } catch (err) {
-        console.error("Supabase client fetch failed:", err);
-        clients = [];
+        console.warn("Supabase client fetch failed:", err);
+        clients = this.getLocalClients();
       }
     } else {
       clients = this.getLocalClients();
@@ -368,73 +366,31 @@ export class ClientService {
   }
 
   static async getClientProjects(clientId: string): Promise<ProjectSummary[]> {
-    if (typeof window !== "undefined") {
+    if (isSupabaseConfigured()) {
       try {
-        const storedProjs = localStorage.getItem("uxi_projects_store");
-        if (storedProjs) {
-          const projs = JSON.parse(storedProjs);
-          const matched = projs.filter((p: any) => p.client_id === clientId);
-          if (matched.length > 0) {
-            return matched.map((p: any) => ({
-              id: p.id,
-              name: p.project_name,
-              code: p.project_code,
-              clientName: "This Client",
-              status: p.project_status,
-              deadline: p.estimated_deadline || "2026-10-01",
-              progressPercent: p.project_status === "Completed" ? 100 : p.project_status === "Client Review" ? 85 : 55,
-              budget: Number(p.final_budget || p.estimated_budget || 0),
-              leadName: "UXI Lead",
-            }));
-          }
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from("projects")
+          .select("*")
+          .eq("client_id", clientId)
+          .eq("is_archived", false);
+
+        if (!error && data) {
+          return data.map((p: any) => ({
+            id: p.id,
+            name: p.project_name,
+            code: p.project_code,
+            clientName: p.client_company || p.client_name || "Client",
+            status: p.project_status,
+            deadline: p.estimated_deadline || "",
+            progressPercent: p.progress_percent || 0,
+            budget: Number(p.final_budget || p.estimated_budget || 0),
+            leadName: "Lead",
+          }));
         }
       } catch {
         // fallback
       }
-    }
-
-    if (clientId === "c1-finpulse-uuid") {
-      return [
-        {
-          id: "proj-1",
-          name: "FinPulse Banking Portal",
-          code: "UXI-2026-001",
-          clientName: "FinPulse Technologies",
-          status: "Development" as any,
-          deadline: "2026-09-15",
-          progressPercent: 55,
-          budget: 450000,
-          leadName: "Praneeth",
-        },
-      ];
-    } else if (clientId === "c2-aura-uuid") {
-      return [
-        {
-          id: "proj-2",
-          name: "Aura Luxury Ecommerce",
-          code: "UXI-2026-002",
-          clientName: "Aura Brands Inc",
-          status: "Client Review" as any,
-          deadline: "2026-09-05",
-          progressPercent: 80,
-          budget: 320000,
-          leadName: "Vedesh",
-        },
-      ];
-    } else if (clientId === "c3-omnihealth-uuid") {
-      return [
-        {
-          id: "proj-3",
-          name: "OmniHealth Patient Cloud",
-          code: "UXI-2026-003",
-          clientName: "OmniHealth Care",
-          status: "Designing" as any,
-          deadline: "2026-09-28",
-          progressPercent: 35,
-          budget: 680000,
-          leadName: "Hafi",
-        },
-      ];
     }
 
     return [];

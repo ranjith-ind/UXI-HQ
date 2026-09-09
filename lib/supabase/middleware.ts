@@ -13,31 +13,12 @@ export async function updateSession(request: NextRequest) {
 
   const isProduction = process.env.NODE_ENV === "production";
 
-  // Check demo cookie if running in local test mode
-  const demoCookie = request.cookies.get("uxi_demo_user");
-  const hasDemoUser = Boolean(demoCookie?.value) && !isProduction;
-
   // If Supabase is not configured:
   if (!isSupabaseConfigured()) {
-    if (isProduction) {
-      // Production fail-closed: Require live Supabase configuration and valid session
-      if (!isPublicRoute && pathname !== "/") {
-        const url = request.nextUrl.clone();
-        url.pathname = "/login";
-        url.searchParams.set("error", "config_missing");
-        return NextResponse.redirect(url);
-      }
-      return supabaseResponse;
-    }
-
-    if (!hasDemoUser && !isPublicRoute && pathname !== "/") {
+    if (!isPublicRoute && pathname !== "/") {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
-      return NextResponse.redirect(url);
-    }
-    if (hasDemoUser && isAuthRoute) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/dashboard";
+      url.searchParams.set("error", "config_missing");
       return NextResponse.redirect(url);
     }
     return supabaseResponse;
@@ -67,7 +48,7 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isAuthenticated = Boolean(user) || hasDemoUser;
+  const isAuthenticated = Boolean(user);
 
   // Protect private routes
   if (!isAuthenticated && !isPublicRoute) {

@@ -30,105 +30,8 @@ const DEFAULT_PREFERENCES: NotificationPreferences = {
   updated_at: new Date().toISOString(),
 };
 
-// Initial Mock Notifications
-let mockNotifications: NotificationWithDetails[] = [
-  {
-    id: "notif-1",
-    recipient_id: "usr-ranjith",
-    actor_id: "usr-hafi",
-    actor_name: "Hafi",
-    actor_avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    title: "New High-Priority Lead Assigned",
-    message: "Apex Capital Ventures (₹8.5L) was assigned to you for consultation.",
-    notification_type: "Lead Assigned",
-    entity_type: "lead",
-    entity_id: "lead-2",
-    action_url: "/leads/lead-2",
-    is_read: false,
-    priority: "High",
-    created_at: new Date(Date.now() - 10 * 60 * 1000).toISOString(), // 10 mins ago
-  },
-  {
-    id: "notif-2",
-    recipient_id: "usr-ranjith",
-    actor_id: "usr-vedesh",
-    actor_name: "Vedesh",
-    actor_avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-    title: "Payment Received: ₹2,50,000",
-    message: "Clienter Tech Labs settled invoice INV-2026-003 via HDFC Bank Wire.",
-    notification_type: "Payment Received",
-    entity_type: "payment",
-    entity_id: "pay-1",
-    action_url: "/finance/payments",
-    is_read: false,
-    priority: "Normal",
-    created_at: new Date(Date.now() - 45 * 60 * 1000).toISOString(), // 45 mins ago
-  },
-  {
-    id: "notif-3",
-    recipient_id: "usr-ranjith",
-    actor_id: null,
-    actor_name: "System Bot",
-    title: "Project Deadline Approaching",
-    message: "Clienter Platform (Sprint 3) delivery is due in 3 days.",
-    notification_type: "Project Deadline",
-    entity_type: "project",
-    entity_id: "proj-1",
-    action_url: "/projects/proj-1",
-    is_read: false,
-    priority: "High",
-    created_at: new Date(Date.now() - 3 * 3600 * 1000).toISOString(), // 3 hours ago
-  },
-  {
-    id: "notif-4",
-    recipient_id: "usr-ranjith",
-    actor_id: "usr-praneeth",
-    actor_name: "Praneeth",
-    actor_avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&h=150&fit=crop&crop=face",
-    title: "Task Assigned: Auth Middleware Refactor",
-    message: "Assigned you to review the Supabase SSR session token verification.",
-    notification_type: "Task Assigned",
-    entity_type: "task",
-    entity_id: "task-1",
-    action_url: "/tasks",
-    is_read: true,
-    read_at: new Date(Date.now() - 5 * 3600 * 1000).toISOString(),
-    priority: "Normal",
-    created_at: new Date(Date.now() - 6 * 3600 * 1000).toISOString(), // 6 hours ago
-  },
-  {
-    id: "notif-5",
-    recipient_id: "usr-ranjith",
-    actor_id: null,
-    actor_name: "System Bot",
-    title: "Invoice Overdue Alert",
-    message: "Invoice INV-2026-004 for ZenMart Global is overdue by 5 days.",
-    notification_type: "Invoice Overdue",
-    entity_type: "invoice",
-    entity_id: "inv-4",
-    action_url: "/finance/invoices",
-    is_read: true,
-    read_at: new Date(Date.now() - 12 * 3600 * 1000).toISOString(),
-    priority: "Urgent",
-    created_at: new Date(Date.now() - 26 * 3600 * 1000).toISOString(), // Yesterday
-  },
-  {
-    id: "notif-6",
-    recipient_id: "usr-ranjith",
-    actor_id: null,
-    actor_name: "System Bot",
-    title: "Team Workload Alert: High Capacity",
-    message: "Praneeth is currently operating at 105% allocation capacity.",
-    notification_type: "Team Workload",
-    entity_type: "team_member",
-    entity_id: "team-4",
-    action_url: "/team",
-    is_read: true,
-    read_at: new Date(Date.now() - 20 * 3600 * 1000).toISOString(),
-    priority: "High",
-    created_at: new Date(Date.now() - 48 * 3600 * 1000).toISOString(), // 2 days ago
-  },
-];
+// In-memory notifications store
+let mockNotifications: NotificationWithDetails[] = [];
 
 let mockPreferencesStore: Record<string, NotificationPreferences> = {};
 
@@ -146,7 +49,7 @@ export class NotificationService {
     sortBy?: "newest" | "oldest" | "priority";
     limit?: number;
   }): Promise<NotificationWithDetails[]> {
-    let result = [...mockNotifications];
+    let result: NotificationWithDetails[] = [...mockNotifications];
 
     if (isSupabaseConfigured()) {
       try {
@@ -173,7 +76,7 @@ export class NotificationService {
         }
 
         const { data, error } = await query;
-        if (!error && data && data.length > 0) {
+        if (!error && data) {
           result = data.map((item: any) => ({
             id: item.id,
             recipient_id: item.recipient_id,
@@ -194,14 +97,14 @@ export class NotificationService {
           }));
         }
       } catch (err) {
-        console.warn("Supabase notification query failed, using fallback:", err);
+        console.warn("Supabase notification query failed:", err);
       }
     }
 
     // Apply client filters if using mock or memory
     if (params?.recipientId) {
       result = result.filter(
-        (n) => n.recipient_id === params.recipientId || n.recipient_id === "usr-ranjith" || !n.recipient_id
+        (n) => n.recipient_id === params.recipientId || !n.recipient_id
       );
     }
 

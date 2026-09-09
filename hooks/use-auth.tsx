@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { UserRole } from "@/types";
@@ -10,7 +10,6 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, pass: string) => Promise<boolean>;
   logout: () => Promise<void>;
-  loginAsFounder: (email?: string) => Promise<boolean>;
   refreshUser: () => Promise<void>;
 }
 
@@ -53,24 +52,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const loginAsFounder = async (email?: string): Promise<boolean> => {
-    setLoading(true);
-    try {
-      const targetEmail = email || "admin@uxitech.in";
-      const founderUser = await AuthService.loginAsFounder(targetEmail);
-      if (founderUser) {
-        setUser(founderUser);
-        return true;
-      }
-      return false;
-    } catch (err) {
-      console.error("loginAsFounder failed:", err);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const logout = async () => {
     setLoading(true);
     try {
@@ -92,7 +73,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoading: loading,
         login,
         logout,
-        loginAsFounder,
         refreshUser,
       }}
     >

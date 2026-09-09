@@ -25,6 +25,7 @@ import {
 } from "@/types/invoice";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/components/ui/toast";
+import { useRealtimeTables } from "@/hooks/use-realtime";
 
 export default function InvoicesPage() {
   const { user } = useAuth();
@@ -69,6 +70,12 @@ export default function InvoicesPage() {
   useEffect(() => {
     loadInvoices();
   }, [loadInvoices]);
+
+  // Realtime subscription for invoices, items, and payments
+  useRealtimeTables({
+    tables: ["invoices", "invoice_items", "payments"],
+    onChange: loadInvoices,
+  });
 
   const handleOpenAdd = () => {
     setSelectedInvoice(null);

@@ -44,8 +44,9 @@ import { ProjectDeleteModal } from "@/components/projects/project-delete-modal";
 import { ProjectArchiveModal } from "@/components/projects/project-archive-modal";
 import { TaskTable } from "@/components/tasks/task-table";
 import { TaskForm } from "@/components/tasks/task-form";
-import { ProjectService, INITIAL_TEAM_MEMBERS } from "@/services/project.service";
+import { ProjectService } from "@/services/project.service";
 import { ClientService } from "@/services/client.service";
+import { TeamService } from "@/services/team.service";
 import { TaskService } from "@/services/task.service";
 import { SprintService } from "@/services/sprint.service";
 import { InvoiceService } from "@/services/invoice.service";
@@ -69,6 +70,7 @@ import {
   PROJECT_STATUS_PROGRESS,
 } from "@/types/project";
 import { ClientWithDetails } from "@/types/client";
+import { TeamMemberWithDetails } from "@/types/team";
 import { TaskFormData, TaskWithDetails } from "@/types/task";
 import { SprintWithDetails } from "@/types/sprint";
 import { formatCurrency, formatDate, formatRelativeTime } from "@/lib/utils";
@@ -116,6 +118,7 @@ export default function ProjectDetailPage({
   const [isInvoiceFormOpen, setIsInvoiceFormOpen] = useState(false);
   const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
   const [selectedInvoiceForPayment, setSelectedInvoiceForPayment] = useState<InvoiceWithDetails | null>(null);
+  const [allTeamMembers, setAllTeamMembers] = useState<TeamMemberWithDetails[]>([]);
 
   const loadProjectData = useCallback(async () => {
     setLoading(true);
@@ -129,6 +132,7 @@ export default function ProjectDetailPage({
         fetchedPayments,
         fetchedExpenses,
         allLeads,
+        fetchedTeam,
       ] = await Promise.all([
         ProjectService.getProjectById(id),
         ClientService.getClients(),
@@ -138,6 +142,7 @@ export default function ProjectDetailPage({
         PaymentService.getPayments({ projectId: id }),
         ExpenseService.getExpenses({ projectId: id }),
         LeadService.getLeads(),
+        TeamService.getTeamMembers(),
       ]);
 
       if (fetchedProject) {
@@ -159,6 +164,7 @@ export default function ProjectDetailPage({
       setProjectInvoices(fetchedInvoices);
       setProjectPayments(fetchedPayments);
       setProjectExpenses(fetchedExpenses);
+      setAllTeamMembers(fetchedTeam);
 
       // Task calculation
       const total = fetchedTasks.length;
@@ -552,7 +558,7 @@ export default function ProjectDetailPage({
                 </div>
 
                 <div className="space-y-1 max-h-48 overflow-y-auto">
-                  {INITIAL_TEAM_MEMBERS.map((tm) => {
+                  {allTeamMembers.map((tm) => {
                     const isAssigned = project.team_members.some((m) => m.team_member_id === tm.id);
                     return (
                       <button
@@ -563,8 +569,8 @@ export default function ProjectDetailPage({
                         }`}
                       >
                         <div className="flex items-center gap-2">
-                          <Avatar name={tm.name} size="sm" />
-                          <span>{tm.name}</span>
+                          <Avatar name={tm.full_name || (tm as any).name} size="sm" />
+                          <span>{tm.full_name || (tm as any).name}</span>
                         </div>
                         <span className="text-[10px] text-slate-400">{isAssigned ? "✓ Added" : "+ Add"}</span>
                       </button>

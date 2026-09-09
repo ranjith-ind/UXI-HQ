@@ -71,16 +71,16 @@ export function ProjectForm({
     requirements: "",
     project_status: "Confirmed",
     priority: "Medium",
-    estimated_budget: 150000,
-    final_budget: 150000,
+    estimated_budget: 0,
+    final_budget: 0,
     currency: "INR",
-    advance_amount: 50000,
+    advance_amount: 0,
     start_date: new Date().toISOString().split("T")[0],
     estimated_deadline: "",
     project_url: "",
     repository_url: "",
     project_notes: "",
-    team_member_ids: ["tm-1-ranjith"],
+    team_member_ids: [],
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -88,6 +88,11 @@ export function ProjectForm({
 
   useEffect(() => {
     if (initialData && mode === "edit") {
+      const existingMembers = (initialData as any)?.team_members;
+      const memberIds = Array.isArray(existingMembers)
+        ? existingMembers.map((m: any) => m.team_member_id || m.id).filter(Boolean)
+        : [];
+
       setFormData({
         client_id: initialData.client_id || (clientsList[0]?.id || ""),
         project_name: initialData.project_name || "",
@@ -110,7 +115,7 @@ export function ProjectForm({
         project_url: initialData.project_url || "",
         repository_url: initialData.repository_url || "",
         project_notes: initialData.project_notes || "",
-        team_member_ids: ["tm-1-ranjith"],
+        team_member_ids: memberIds,
       });
     } else {
       setFormData({
@@ -122,16 +127,16 @@ export function ProjectForm({
         requirements: "",
         project_status: "Confirmed",
         priority: "Medium",
-        estimated_budget: 150000,
-        final_budget: 150000,
+        estimated_budget: 0,
+        final_budget: 0,
         currency: "INR",
-        advance_amount: 50000,
+        advance_amount: 0,
         start_date: new Date().toISOString().split("T")[0],
         estimated_deadline: "",
         project_url: "",
         repository_url: "",
         project_notes: "",
-        team_member_ids: ["tm-1-ranjith"],
+        team_member_ids: [],
       });
     }
     setCurrentStep(1);

@@ -11,57 +11,20 @@ import { ProjectService } from "./project.service";
 
 const LOCAL_SPRINTS_KEY = "uxi_sprints_store";
 
-export const INITIAL_SPRINTS: Sprint[] = [
-  {
-    id: "sprint-1",
-    project_id: "proj-1",
-    name: "FinPulse MVP Core Sprint",
-    goal: "Complete merchant auth, OAuth2 token rotation, and live settlement webhooks.",
-    start_date: "2026-08-20",
-    end_date: "2026-09-05",
-    sprint_status: "Active",
-    created_by: "f1-ranjith-uuid",
-    created_at: "2026-08-20T09:00:00Z",
-    updated_at: "2026-08-29T10:00:00Z",
-  },
-  {
-    id: "sprint-2",
-    project_id: "proj-2",
-    name: "Aura Storefront Polish Sprint",
-    goal: "Finalize luxury 3D product view, responsive checkout optimizations, and client signoff.",
-    start_date: "2026-08-22",
-    end_date: "2026-09-04",
-    sprint_status: "Active",
-    created_by: "f3-vedesh-uuid",
-    created_at: "2026-08-22T10:00:00Z",
-    updated_at: "2026-08-29T11:00:00Z",
-  },
-  {
-    id: "sprint-3",
-    project_id: "proj-3",
-    name: "OmniHealth Cloud Architecture",
-    goal: "Setup HIPAA compliance, microservices architecture, and doctor consultation scheduling schema.",
-    start_date: "2026-09-01",
-    end_date: "2026-09-18",
-    sprint_status: "Planned",
-    created_by: "f2-hafi-uuid",
-    created_at: "2026-08-25T14:00:00Z",
-    updated_at: "2026-08-29T12:00:00Z",
-  },
-];
+export const INITIAL_SPRINTS: Sprint[] = [];
+
 
 export class SprintService {
   private static getLocalSprints(): Sprint[] {
-    if (typeof window === "undefined") return INITIAL_SPRINTS;
+    if (typeof window === "undefined") return [];
     try {
       const stored = localStorage.getItem(LOCAL_SPRINTS_KEY);
       if (stored) {
         return JSON.parse(stored);
       }
-      localStorage.setItem(LOCAL_SPRINTS_KEY, JSON.stringify(INITIAL_SPRINTS));
-      return INITIAL_SPRINTS;
+      return [];
     } catch {
-      return INITIAL_SPRINTS;
+      return [];
     }
   }
 

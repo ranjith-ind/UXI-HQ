@@ -17,7 +17,7 @@ import {
 } from "@/types/task";
 import { ProjectWithDetails } from "@/types/project";
 import { SprintWithDetails } from "@/types/sprint";
-import { INITIAL_TEAM_MEMBERS } from "@/services/project.service";
+import { TeamMemberWithDetails } from "@/types/team";
 import { cn } from "@/lib/utils";
 
 interface TaskFiltersProps {
@@ -39,6 +39,7 @@ interface TaskFiltersProps {
   onSortByChange: (val: TaskSortOption) => void;
   projectsList: ProjectWithDetails[];
   sprintsList: SprintWithDetails[];
+  teamMembersList?: TeamMemberWithDetails[];
   totalCount: number;
 }
 
@@ -81,6 +82,7 @@ export function TaskFilters({
   onSortByChange,
   projectsList,
   sprintsList,
+  teamMembersList,
   totalCount,
 }: TaskFiltersProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -251,9 +253,9 @@ export function TaskFilters({
               className="w-full h-9 rounded-xl border border-slate-200 bg-slate-50 px-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-blue-500 shadow-2xs"
             >
               <option value="">All Engineers</option>
-              {INITIAL_TEAM_MEMBERS.map((tm) => (
+              {teamMembersList && teamMembersList.map((tm) => (
                 <option key={tm.id} value={tm.id}>
-                  {tm.name} ({tm.role})
+                  {tm.full_name || (tm as any).name} ({tm.role})
                 </option>
               ))}
             </select>

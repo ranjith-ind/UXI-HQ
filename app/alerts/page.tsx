@@ -21,6 +21,7 @@ import {
 } from "@/types/alert";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/components/ui/toast";
+import { useRealtimeTables } from "@/hooks/use-realtime";
 
 export default function BusinessAlertsPage() {
   const { user } = useAuth();
@@ -66,6 +67,12 @@ export default function BusinessAlertsPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Realtime subscription for business alerts
+  useRealtimeTables({
+    tables: ["business_alerts"],
+    onChange: loadData,
+  });
 
   const handleResolveAlert = async (id: string) => {
     const actorName = user?.fullName || "Ranjith";

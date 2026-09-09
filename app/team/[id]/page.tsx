@@ -51,6 +51,7 @@ import { formatDate, cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/components/ui/toast";
 import { Dropdown, DropdownItem } from "@/components/ui/dropdown";
+import { useRealtimeTables } from "@/hooks/use-realtime";
 
 export default function TeamMemberDetailPage({
   params,
@@ -122,6 +123,12 @@ export default function TeamMemberDetailPage({
   useEffect(() => {
     loadMemberData();
   }, [loadMemberData]);
+
+  // Realtime subscription for team member profile, skills, tasks, projects
+  useRealtimeTables({
+    tables: ["team_members", "team_member_skills", "tasks", "task_assignees", "projects"],
+    onChange: loadMemberData,
+  });
 
   const handleEditSubmit = async (formData: TeamMemberFormData) => {
     const actorName = user?.fullName || "Ranjith";

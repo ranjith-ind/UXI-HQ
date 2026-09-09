@@ -15,64 +15,18 @@ import { InvoiceService } from "./invoice.service";
 const LOCAL_PAYMENTS_KEY = "uxi_payments_store";
 const LOCAL_INVOICES_KEY = "uxi_invoices_store";
 
-export const INITIAL_PAYMENTS: Payment[] = [
-  {
-    id: "pay-1",
-    invoice_id: "inv-1",
-    client_id: "client-1",
-    project_id: "proj-1",
-    amount: 250000,
-    payment_date: "2026-08-05",
-    payment_method: "Bank Transfer",
-    transaction_reference: "HDFC-NEFT-984218392",
-    payment_status: "Completed",
-    notes: "50% kickoff advance for FinPulse enterprise portal.",
-    recorded_by: "f1-ranjith-uuid",
-    created_at: "2026-08-05T14:30:00Z",
-    updated_at: "2026-08-05T14:30:00Z",
-  },
-  {
-    id: "pay-2",
-    invoice_id: "inv-2",
-    client_id: "client-2",
-    project_id: "proj-2",
-    amount: 175000,
-    payment_date: "2026-08-09",
-    payment_method: "Bank Transfer",
-    transaction_reference: "ICICI-IMPS-774920194",
-    payment_status: "Completed",
-    notes: "50% storefront kickoff retainer.",
-    recorded_by: "f1-ranjith-uuid",
-    created_at: "2026-08-09T16:00:00Z",
-    updated_at: "2026-08-09T16:00:00Z",
-  },
-  {
-    id: "pay-3",
-    invoice_id: "inv-4",
-    client_id: "client-3",
-    project_id: "proj-3",
-    amount: 300000,
-    payment_date: "2026-08-12",
-    payment_method: "Bank Transfer",
-    transaction_reference: "AXIS-RTGS-339201948",
-    payment_status: "Completed",
-    notes: "Initial retainer for telehealth HIPAA cloud architecture.",
-    recorded_by: "f2-hafi-uuid",
-    created_at: "2026-08-12T11:20:00Z",
-    updated_at: "2026-08-12T11:20:00Z",
-  },
-];
+export const INITIAL_PAYMENTS: Payment[] = [];
+
 
 export class PaymentService {
   private static getLocalPayments(): Payment[] {
-    if (typeof window === "undefined") return INITIAL_PAYMENTS;
+    if (typeof window === "undefined") return [];
     try {
       const stored = localStorage.getItem(LOCAL_PAYMENTS_KEY);
       if (stored) return JSON.parse(stored);
-      localStorage.setItem(LOCAL_PAYMENTS_KEY, JSON.stringify(INITIAL_PAYMENTS));
-      return INITIAL_PAYMENTS;
+      return [];
     } catch {
-      return INITIAL_PAYMENTS;
+      return [];
     }
   }
 

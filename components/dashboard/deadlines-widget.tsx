@@ -40,10 +40,15 @@ export function DeadlinesWidget({ deadlines }: DeadlinesWidgetProps) {
 
       {/* Deadlines List */}
       <div className="mt-4 flex-1 space-y-2.5">
-        {deadlines.map((item) => {
-          const isUrgent = item.priority === "urgent" || item.daysRemaining <= 7;
+        {deadlines.length === 0 ? (
+          <div className="py-8 text-center text-xs text-slate-400">
+            No upcoming deadlines.
+          </div>
+        ) : (
+          deadlines.map((item) => {
+            const isUrgent = item.priority === "urgent" || item.daysRemaining <= 7;
 
-          return (
+            return (
             <div
               key={item.id}
               className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/80 hover:border-slate-300 hover:bg-slate-50 transition-all group"
@@ -80,7 +85,7 @@ export function DeadlinesWidget({ deadlines }: DeadlinesWidgetProps) {
               </div>
             </div>
           );
-        })}
+        }))}
       </div>
     </div>
   );

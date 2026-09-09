@@ -14,81 +14,15 @@ import { ExpenseService } from "./expense.service";
 import { LeadService } from "./lead.service";
 import { TeamService } from "./team.service";
 
-// In-memory mock store for business alerts
-let mockAlerts: BusinessAlertWithDetails[] = [
-  {
-    id: "alt-1",
-    alert_type: "Project Overdue",
-    title: "Project Deadline Exceeded: Clienter Platform",
-    description: "Scheduled completion was 2 days ago. Sprint review is currently blocking delivery.",
-    severity: "Critical",
-    entity_type: "project",
-    entity_id: "proj-1",
-    is_resolved: false,
-    action_url: "/projects/proj-1",
-    created_at: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-  },
-  {
-    id: "alt-2",
-    alert_type: "Invoice Overdue",
-    title: "Overdue Invoice: INV-2026-004 (ZenMart Global)",
-    description: "Outstanding balance of ₹1,80,000 is 5 days past due date.",
-    severity: "Critical",
-    entity_type: "invoice",
-    entity_id: "inv-4",
-    is_resolved: false,
-    action_url: "/finance/invoices",
-    created_at: new Date(Date.now() - 48 * 3600 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 48 * 3600 * 1000).toISOString(),
-  },
-  {
-    id: "alt-3",
-    alert_type: "Team Overloaded",
-    title: "Capacity Overload: Praneeth (105%)",
-    description: "Assigned to 6 active sprint tasks exceeding the 40h standard weekly bandwidth.",
-    severity: "Critical",
-    entity_type: "team_member",
-    entity_id: "team-4",
-    is_resolved: false,
-    action_url: "/team",
-    created_at: new Date(Date.now() - 12 * 3600 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 12 * 3600 * 1000).toISOString(),
-  },
-  {
-    id: "alt-4",
-    alert_type: "Lead Follow Up Overdue",
-    title: "Follow-up Overdue: NexaFlow Commerce",
-    description: "Discovery call follow-up was scheduled for yesterday. High conversion probability (70%).",
-    severity: "Warning",
-    entity_type: "lead",
-    entity_id: "lead-3",
-    is_resolved: false,
-    action_url: "/leads/lead-3",
-    created_at: new Date(Date.now() - 8 * 3600 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 8 * 3600 * 1000).toISOString(),
-  },
-  {
-    id: "alt-5",
-    alert_type: "Task Due Today",
-    title: "Task Due Today: Responsive Payment Modal",
-    description: "Scheduled for completion before 6:00 PM today by Hafi.",
-    severity: "Warning",
-    entity_type: "task",
-    entity_id: "task-102",
-    is_resolved: false,
-    action_url: "/tasks",
-    created_at: new Date(Date.now() - 4 * 3600 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 4 * 3600 * 1000).toISOString(),
-  },
-];
+// In-memory store for business alerts
+let mockAlerts: BusinessAlertWithDetails[] = [];
 
 export class AlertService {
   /**
    * Fetch all business alerts with filtering
    */
   static async getBusinessAlerts(filter?: AlertFilter): Promise<BusinessAlertWithDetails[]> {
-    let result = [...mockAlerts];
+    let result: BusinessAlertWithDetails[] = [...mockAlerts];
 
     if (isSupabaseConfigured()) {
       try {
@@ -108,7 +42,7 @@ export class AlertService {
         query = query.order("created_at", { ascending: false });
 
         const { data, error } = await query;
-        if (!error && data && data.length > 0) {
+        if (!error && data) {
           result = data.map((item: any) => ({
             id: item.id,
             alert_type: item.alert_type,
@@ -128,7 +62,7 @@ export class AlertService {
           }));
         }
       } catch (err) {
-        console.warn("Supabase business alerts query warning, using fallback:", err);
+        console.warn("Supabase business alerts query warning:", err);
       }
     }
 
@@ -217,7 +151,7 @@ export class AlertService {
    */
   static async resolveAlert(
     alertId: string,
-    actorName: string = "Ranjith"
+    actorName: string = "User"
   ): Promise<{ success: boolean; error?: string }> {
     try {
       const now = new Date().toISOString();

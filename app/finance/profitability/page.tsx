@@ -21,6 +21,7 @@ import {
   ProfitabilityInsights as ProfitabilityInsightsType,
 } from "@/types/profitability";
 import { useToast } from "@/components/ui/toast";
+import { useRealtimeTables } from "@/hooks/use-realtime";
 
 export default function ProfitabilityPage() {
   const { error: toastError } = useToast();
@@ -53,6 +54,12 @@ export default function ProfitabilityPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Realtime subscription for payments, expenses, and projects
+  useRealtimeTables({
+    tables: ["payments", "expenses", "projects"],
+    onChange: loadData,
+  });
 
   return (
     <div className="space-y-6 pb-12 font-sans">

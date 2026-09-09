@@ -25,6 +25,7 @@ import {
 } from "@/types/notification";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/components/ui/toast";
+import { useRealtimeTables } from "@/hooks/use-realtime";
 
 export default function NotificationsPage() {
   const { user } = useAuth();
@@ -69,6 +70,12 @@ export default function NotificationsPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Realtime subscription for notifications
+  useRealtimeTables({
+    tables: ["notifications"],
+    onChange: loadData,
+  });
 
   const handleMarkAsRead = async (id: string) => {
     const res = await NotificationService.markAsRead(id);

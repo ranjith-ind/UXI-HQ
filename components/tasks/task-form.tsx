@@ -61,7 +61,7 @@ export function TaskForm({
     actual_hours: 0,
     start_date: new Date().toISOString().split("T")[0],
     due_date: "",
-    assignee_ids: ["tm-1-ranjith"],
+    assignee_ids: [],
     subtasks: [],
   });
 
@@ -83,7 +83,7 @@ export function TaskForm({
         actual_hours: Number(initialData.actual_hours || 0),
         start_date: initialData.start_date || "",
         due_date: initialData.due_date || "",
-        assignee_ids: ["tm-1-ranjith"],
+        assignee_ids: (initialData as any)?.assignees ? (initialData as any).assignees.map((a: any) => a.team_member_id || a.id) : [],
         subtasks: [],
       });
     } else {
@@ -95,11 +95,11 @@ export function TaskForm({
         task_status: "To Do",
         priority: "Medium",
         progress: 0,
-        estimated_hours: 8,
+        estimated_hours: 0,
         actual_hours: 0,
         start_date: new Date().toISOString().split("T")[0],
         due_date: "",
-        assignee_ids: ["tm-1-ranjith"],
+        assignee_ids: [],
         subtasks: [],
       });
     }

@@ -40,6 +40,7 @@ import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/components/ui/toast";
+import { useRealtimeTables } from "@/hooks/use-realtime";
 
 export default function LeadDetailPage() {
   const params = useParams();
@@ -93,6 +94,12 @@ export default function LeadDetailPage() {
   useEffect(() => {
     loadLeadData();
   }, [loadLeadData]);
+
+  // Realtime subscription for lead details, activities, and followups
+  useRealtimeTables({
+    tables: ["leads", "lead_activities", "lead_followups"],
+    onChange: loadLeadData,
+  });
 
   const handleStatusChange = async (newStatus: LeadStatus) => {
     if (!lead) return;

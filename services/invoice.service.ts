@@ -20,6 +20,7 @@ export const INITIAL_INVOICES: Invoice[] = [];
 
 export const INITIAL_INVOICE_ITEMS: InvoiceItem[] = [];
 
+
 export class InvoiceService {
   private static getLocalInvoices(): Invoice[] {
     if (typeof window === "undefined") return [];
@@ -32,7 +33,6 @@ export class InvoiceService {
     }
   }
 
-
   private static saveLocalInvoices(invoices: Invoice[]) {
     if (typeof window === "undefined") return;
     try {
@@ -43,14 +43,13 @@ export class InvoiceService {
   }
 
   private static getLocalInvoiceItems(): InvoiceItem[] {
-    if (typeof window === "undefined") return INITIAL_INVOICE_ITEMS;
+    if (typeof window === "undefined") return [];
     try {
       const stored = localStorage.getItem(LOCAL_INVOICE_ITEMS_KEY);
       if (stored) return JSON.parse(stored);
-      localStorage.setItem(LOCAL_INVOICE_ITEMS_KEY, JSON.stringify(INITIAL_INVOICE_ITEMS));
-      return INITIAL_INVOICE_ITEMS;
+      return [];
     } catch {
-      return INITIAL_INVOICE_ITEMS;
+      return [];
     }
   }
 
@@ -102,17 +101,13 @@ export class InvoiceService {
         }
 
         const { data, error } = await query;
-        if (error) {
-          console.error("Supabase invoice query error:", error);
-          rawInvoices = [];
-        } else if (!data) {
-          rawInvoices = [];
+        if (error || !data) {
+          rawInvoices = this.getLocalInvoices();
         } else {
           rawInvoices = data as unknown as Invoice[];
         }
-      } catch (err) {
-        console.error("Supabase invoice query exception:", err);
-        rawInvoices = [];
+      } catch {
+        rawInvoices = this.getLocalInvoices();
       }
     } else {
       rawInvoices = this.getLocalInvoices();

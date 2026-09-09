@@ -56,8 +56,15 @@ export function ProjectsTable({ projects }: ProjectsTableProps) {
             </tr>
           </thead>
           <tbody>
-            {projects.map((project) => {
-              return (
+            {projects.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="text-center py-8 text-[#8A93A3] text-xs">
+                  No projects recorded yet.
+                </td>
+              </tr>
+            ) : (
+              projects.map((project) => {
+                return (
                 <tr
                   key={project.id}
                   className="hover:bg-[#F7F9FC] transition-colors group cursor-pointer"
@@ -115,7 +122,7 @@ export function ProjectsTable({ projects }: ProjectsTableProps) {
                   </td>
                 </tr>
               );
-            })}
+            }))}
           </tbody>
         </table>
       </div>

@@ -19,6 +19,7 @@ import {
 } from "@/types/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/components/ui/toast";
+import { useRealtimeTables } from "@/hooks/use-realtime";
 
 export default function ClientsPage() {
   const { user } = useAuth();
@@ -70,6 +71,15 @@ export default function ClientsPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Real-time synchronization for clients table
+  useRealtimeTables({
+    tables: ["clients"],
+    onChange: () => {
+      loadData();
+    },
+    debounceMs: 300,
+  });
 
   // Handlers
   const handleOpenAddModal = () => {

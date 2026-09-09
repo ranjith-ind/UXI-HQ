@@ -47,14 +47,14 @@ export function TeamSnapshot() {
         <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
           <span className="text-[10px] text-slate-400 font-bold uppercase block font-display">Available</span>
           <span className="text-base font-extrabold text-emerald-700 mt-0.5 block font-display">
-            {stats?.availableNow ?? 2} Engineers
+            {stats?.availableNow ?? 0} Engineers
           </span>
         </div>
 
         <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
           <span className="text-[10px] text-slate-400 font-bold uppercase block font-display">Active Tasks</span>
           <span className="text-base font-extrabold text-blue-700 mt-0.5 block font-display">
-            {stats?.totalActiveTasks ?? 7} Tasks
+            {stats?.totalActiveTasks ?? 0} Tasks
           </span>
         </div>
 

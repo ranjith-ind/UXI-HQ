@@ -20,65 +20,10 @@ const LOCAL_TASK_ASSIGNEES_KEY = "uxi_task_assignees_store";
 
 export const INITIAL_TASKS: Task[] = [];
 
-export const INITIAL_SUBTASKS: Subtask[] = [
-  {
-    id: "sub-1",
-    parent_task_id: "task-2",
-    project_id: "proj-1",
-    title: "Create webhook receiver API endpoint in Next.js App Router",
-    task_status: "Completed",
-    priority: "High",
-    due_date: "2026-08-28",
-    created_at: "2026-08-26T10:00:00Z",
-    updated_at: "2026-08-28T14:00:00Z",
-  },
-  {
-    id: "sub-2",
-    parent_task_id: "task-2",
-    project_id: "proj-1",
-    title: "Implement HMAC signature verification against FinPulse Gateway",
-    task_status: "Completed",
-    priority: "Urgent",
-    due_date: "2026-08-29",
-    created_at: "2026-08-26T10:00:00Z",
-    updated_at: "2026-08-29T12:00:00Z",
-  },
-  {
-    id: "sub-3",
-    parent_task_id: "task-2",
-    project_id: "proj-1",
-    title: "Setup retry queue for dropped settlement callbacks",
-    task_status: "In Progress",
-    priority: "High",
-    due_date: "2026-09-02",
-    created_at: "2026-08-26T10:00:00Z",
-    updated_at: "2026-08-29T14:00:00Z",
-  },
-  {
-    id: "sub-4",
-    parent_task_id: "task-4",
-    project_id: "proj-2",
-    title: "Convert GLTF assets to Draco compressed buffers",
-    task_status: "Completed",
-    priority: "Medium",
-    due_date: "2026-08-25",
-    created_at: "2026-08-22T11:00:00Z",
-    updated_at: "2026-08-25T16:00:00Z",
-  },
-  {
-    id: "sub-5",
-    parent_task_id: "task-4",
-    project_id: "proj-2",
-    title: "Test responsive rotation controls on iOS Safari & Android Chrome",
-    task_status: "In Review",
-    priority: "High",
-    due_date: "2026-09-01",
-    created_at: "2026-08-22T11:00:00Z",
-    updated_at: "2026-08-29T11:30:00Z",
-  },
-];
+export const INITIAL_SUBTASKS: Subtask[] = [];
 
 export const INITIAL_TASK_ASSIGNEES: Record<string, string[]> = {};
+
 
 export class TaskService {
   private static getLocalTasks(): Task[] {
@@ -102,14 +47,13 @@ export class TaskService {
   }
 
   private static getLocalSubtasks(): Subtask[] {
-    if (typeof window === "undefined") return INITIAL_SUBTASKS;
+    if (typeof window === "undefined") return [];
     try {
       const stored = localStorage.getItem("uxi_subtasks_store");
       if (stored) return JSON.parse(stored);
-      localStorage.setItem("uxi_subtasks_store", JSON.stringify(INITIAL_SUBTASKS));
-      return INITIAL_SUBTASKS;
+      return [];
     } catch {
-      return INITIAL_SUBTASKS;
+      return [];
     }
   }
 
@@ -123,14 +67,13 @@ export class TaskService {
   }
 
   private static getLocalAssigneesMap(): Record<string, string[]> {
-    if (typeof window === "undefined") return INITIAL_TASK_ASSIGNEES;
+    if (typeof window === "undefined") return {};
     try {
       const stored = localStorage.getItem(LOCAL_TASK_ASSIGNEES_KEY);
       if (stored) return JSON.parse(stored);
-      localStorage.setItem(LOCAL_TASK_ASSIGNEES_KEY, JSON.stringify(INITIAL_TASK_ASSIGNEES));
-      return INITIAL_TASK_ASSIGNEES;
+      return {};
     } catch {
-      return INITIAL_TASK_ASSIGNEES;
+      return {};
     }
   }
 
@@ -174,17 +117,13 @@ export class TaskService {
         }
 
         const { data, error } = await query;
-        if (error) {
-          console.error("Supabase task query error:", error);
-          rawTasks = [];
-        } else if (!data) {
-          rawTasks = [];
+        if (error || !data) {
+          rawTasks = this.getLocalTasks();
         } else {
           rawTasks = data as unknown as Task[];
         }
-      } catch (err) {
-        console.error("Supabase task query exception:", err);
-        rawTasks = [];
+      } catch {
+        rawTasks = this.getLocalTasks();
       }
     } else {
       rawTasks = this.getLocalTasks().filter((t) => !t.parent_task_id);
@@ -216,22 +155,25 @@ export class TaskService {
     let detailedTasks: TaskWithDetails[] = rawTasks.map((t) => {
       const proj = projects.find((p) => p.id === t.project_id);
       const sprint = sprints.find((s) => s.id === t.sprint_id);
-      const assignedIds = assigneesMap[t.id] || ["tm-1-ranjith"];
+      const assignedIds = assigneesMap[t.id] || [];
 
-      const assignees: TaskAssignee[] = assignedIds.map((mid) => {
-        const member = INITIAL_TEAM_MEMBERS.find((m) => m.id === mid) || INITIAL_TEAM_MEMBERS[0];
-        return {
-          id: `ta-${t.id}-${member.id}`,
-          task_id: t.id,
-          team_member_id: member.id,
-          name: member.name,
-          email: member.email,
-          role: member.role,
-          title: member.title,
-          avatar_url: member.avatar_url,
-          assigned_at: t.created_at,
-        };
-      });
+      const assignees: TaskAssignee[] = [];
+      for (const mid of assignedIds) {
+        const member = INITIAL_TEAM_MEMBERS.find((m) => m.id === mid);
+        if (member) {
+          assignees.push({
+            id: `ta-${t.id}-${member.id}`,
+            task_id: t.id,
+            team_member_id: member.id,
+            name: member.name,
+            email: member.email,
+            role: member.role,
+            title: member.title,
+            avatar_url: member.avatar_url,
+            assigned_at: t.created_at,
+          });
+        }
+      }
 
       const taskSubtasks = allSubtasks.filter((s) => s.parent_task_id === t.id);
       const completedSubtasks = taskSubtasks.filter((s) => s.task_status === "Completed").length;
@@ -595,7 +537,7 @@ export class TaskService {
     const newSubtask: Subtask = {
       id: "sub-" + Math.random().toString(36).substring(2, 9) + Date.now(),
       parent_task_id: parentTaskId,
-      project_id: parent?.project_id || "proj-1",
+      project_id: parent?.project_id || "",
       title: title.trim(),
       task_status: "To Do",
       priority,

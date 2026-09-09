@@ -9,7 +9,6 @@ interface StatsCardProps {
   changePercent?: number;
   icon: LucideIcon;
   variant?: "blue" | "cyan" | "emerald" | "violet" | "amber";
-  isDemo?: boolean;
 }
 
 const variantStyles = {
@@ -42,7 +41,6 @@ export function StatsCard({
   changePercent,
   icon: Icon,
   variant = "blue",
-  isDemo = false,
 }: StatsCardProps) {
   const isPositive = (changePercent ?? 0) >= 0;
 

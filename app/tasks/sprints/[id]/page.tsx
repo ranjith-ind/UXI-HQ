@@ -26,6 +26,7 @@ import { ProjectWithDetails } from "@/types/project";
 import { formatDate } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/components/ui/toast";
+import { useRealtimeTables } from "@/hooks/use-realtime";
 
 export default function SprintDetailPage({
   params,
@@ -78,6 +79,12 @@ export default function SprintDetailPage({
   useEffect(() => {
     loadSprintData();
   }, [loadSprintData]);
+
+  // Realtime subscription for sprint, tasks, assignees, projects
+  useRealtimeTables({
+    tables: ["sprints", "tasks", "task_assignees", "projects"],
+    onChange: loadSprintData,
+  });
 
   const handleStatusChange = async (newStatus: SprintStatus) => {
     const actorName = user?.fullName || "Ranjith";

@@ -7,37 +7,46 @@ import {
   ActivityLog,
   Payment,
 } from "@/types";
-import {
-  INITIAL_DASHBOARD_STATS,
-  MONTHLY_REVENUE_DATA,
-} from "@/lib/supabase/mock-data";
 import { ProjectService } from "./project.service";
 import { ClientService } from "./client.service";
 import { TaskService } from "./task.service";
+import { PaymentService } from "./payment.service";
+import { FinanceService } from "./finance.service";
 
 export class DashboardService {
   static async getStats(): Promise<DashboardStats> {
     try {
-      const [projStats, clientStats, taskStats] = await Promise.all([
+      const [projStats, clientStats, taskStats, payments] = await Promise.all([
         ProjectService.getStats(),
         ClientService.getStats(),
         TaskService.getStats(),
+        PaymentService.getPayments(),
       ]);
 
-      const totalRevenue = 1750000;
+      const completedPayments = payments.filter((p) => p.payment_status === "Completed");
+      const totalRevenue = completedPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
 
       return {
         totalProjects: projStats.totalProjects,
         activeProjects: projStats.activeProjects,
         totalClients: clientStats.totalClients,
         totalRevenue: totalRevenue,
-        totalRevenueChangePercent: 24.5,
-        activeProjectsChangePercent: 12.0,
-        totalClientsChangePercent: 18.2,
+        totalRevenueChangePercent: 0,
+        activeProjectsChangePercent: 0,
+        totalClientsChangePercent: 0,
         totalTasksCount: taskStats.totalTasks,
       };
     } catch {
-      return INITIAL_DASHBOARD_STATS;
+      return {
+        totalProjects: 0,
+        activeProjects: 0,
+        totalClients: 0,
+        totalRevenue: 0,
+        totalRevenueChangePercent: 0,
+        activeProjectsChangePercent: 0,
+        totalClientsChangePercent: 0,
+        totalTasksCount: 0,
+      };
     }
   }
 
@@ -50,10 +59,10 @@ export class DashboardService {
         code: p.project_code,
         clientName: p.client_company || p.client_name,
         status: p.project_status,
-        deadline: p.estimated_deadline || "2026-10-01",
+        deadline: p.estimated_deadline || "",
         progressPercent: p.progress_percent,
         budget: Number(p.final_budget || 0),
-        leadName: p.team_members[0]?.name || "UXI Lead",
+        leadName: p.team_members[0]?.name || "Unassigned",
       }));
     } catch {
       return [];
@@ -67,13 +76,13 @@ export class DashboardService {
         .filter((p) => p.estimated_deadline && !["Completed", "Delivered", "Cancelled"].includes(p.project_status))
         .slice(0, 4);
 
-      return activeWithDeadline.map((p, idx) => ({
+      return activeWithDeadline.map((p) => ({
         id: `dl-${p.id}`,
         title: `${p.project_name} Delivery`,
         projectName: p.project_code,
         dueDate: p.estimated_deadline!,
         priority: p.priority === "Urgent" ? "urgent" : p.priority === "High" ? "high" : "medium",
-        daysRemaining: p.days_remaining !== null ? p.days_remaining : 7,
+        daysRemaining: p.days_remaining !== null ? p.days_remaining : 0,
       }));
     } catch {
       return [];
@@ -81,17 +90,6 @@ export class DashboardService {
   }
 
   static async getRecentActivities(): Promise<ActivityItem[]> {
-    if (typeof window !== "undefined") {
-      try {
-        const stored = localStorage.getItem("uxi_activity_store");
-        if (stored) {
-          return JSON.parse(stored).slice(0, 6);
-        }
-      } catch {
-        // fallback
-      }
-    }
-
     if (isSupabaseConfigured()) {
       try {
         const supabase = createClient();
@@ -117,43 +115,19 @@ export class DashboardService {
       }
     }
 
-    return [
-      {
-        id: "act-1",
-        actorName: "Ranjith",
-        action: "created new project",
-        targetName: "FinPulse Banking Portal (UXI-2026-001)",
-        timestamp: "2026-08-29T14:30:00Z",
-        category: "project",
-      },
-      {
-        id: "act-2",
-        actorName: "Vedesh",
-        action: "updated client details for",
-        targetName: "Aura Brands Inc",
-        timestamp: "2026-08-29T10:45:00Z",
-        category: "client",
-      },
-      {
-        id: "act-3",
-        actorName: "Praneeth",
-        action: "changed project status to Development for",
-        targetName: "FinPulse Banking Portal",
-        timestamp: "2026-08-29T09:15:00Z",
-        category: "project",
-      },
-      {
-        id: "act-4",
-        actorName: "Hafi",
-        action: "assigned to project",
-        targetName: "OmniHealth Patient Cloud",
-        timestamp: "2026-08-28T16:00:00Z",
-        category: "project",
-      },
-    ];
+    return [];
   }
 
-  static getRevenueChartData() {
-    return MONTHLY_REVENUE_DATA;
+  static async getRevenueChartData(): Promise<Array<{ month: string; revenue: number; target: number }>> {
+    try {
+      const trend = await FinanceService.getMonthlyRevenueTrend("6m");
+      return trend.map((t) => ({
+        month: t.month,
+        revenue: t.revenue,
+        target: t.invoiced,
+      }));
+    } catch {
+      return [];
+    }
   }
 }

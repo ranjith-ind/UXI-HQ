@@ -24,6 +24,7 @@ import { TaskDeleteModal } from "@/components/tasks/task-delete-modal";
 import { TaskService } from "@/services/task.service";
 import { SprintService } from "@/services/sprint.service";
 import { ProjectService } from "@/services/project.service";
+import { TeamService } from "@/services/team.service";
 import {
   TaskDueDateFilter,
   TaskFormData,
@@ -35,6 +36,7 @@ import {
 } from "@/types/task";
 import { SprintFormData, SprintWithDetails } from "@/types/sprint";
 import { ProjectWithDetails } from "@/types/project";
+import { TeamMemberWithDetails } from "@/types/team";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
@@ -49,6 +51,7 @@ export default function TasksPage() {
   const [tasks, setTasks] = useState<TaskWithDetails[]>([]);
   const [projectsList, setProjectsList] = useState<ProjectWithDetails[]>([]);
   const [sprintsList, setSprintsList] = useState<SprintWithDetails[]>([]);
+  const [teamMembersList, setTeamMembersList] = useState<TeamMemberWithDetails[]>([]);
   const [stats, setStats] = useState<ITaskStats>({
     totalTasks: 0,
     inProgressTasks: 0,
@@ -100,10 +103,10 @@ export default function TasksPage() {
     try {
       const effectiveMemberFilter =
         viewMode === "my_tasks"
-          ? user?.id || "tm-1-ranjith"
+          ? user?.id || ""
           : teamMemberFilter;
 
-      const [fetchedTasks, fetchedProjects, fetchedSprints, fetchedStats] =
+      const [fetchedTasks, fetchedProjects, fetchedSprints, fetchedStats, fetchedTeam] =
         await Promise.all([
           TaskService.getTasks({
             search,
@@ -118,12 +121,14 @@ export default function TasksPage() {
           ProjectService.getProjects(),
           SprintService.getSprints(),
           TaskService.getStats(),
+          TeamService.getTeamMembers(),
         ]);
 
       setTasks(fetchedTasks);
       setProjectsList(fetchedProjects);
       setSprintsList(fetchedSprints);
       setStats(fetchedStats);
+      setTeamMembersList(fetchedTeam);
     } catch (err) {
       console.error("Failed to load tasks:", err);
       toastError("Failed to fetch tasks");
@@ -341,6 +346,7 @@ export default function TasksPage() {
         onSortByChange={setSortBy}
         projectsList={projectsList}
         sprintsList={sprintsList}
+        teamMembersList={teamMembersList}
         totalCount={tasks.length}
       />
 

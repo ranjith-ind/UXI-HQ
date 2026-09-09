@@ -1,4 +1,4 @@
-﻿import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 
@@ -19,6 +19,11 @@ export function useRealtimeTable<T extends { [key: string]: any } = Record<strin
   onUpdate,
   onDelete,
 }: UseRealtimeTableOptions<T>) {
+  const callbacksRef = useRef({ onInsert, onUpdate, onDelete });
+  useEffect(() => {
+    callbacksRef.current = { onInsert, onUpdate, onDelete };
+  });
+
   useEffect(() => {
     if (!isSupabaseConfigured()) return;
 
@@ -37,7 +42,7 @@ export function useRealtimeTable<T extends { [key: string]: any } = Record<strin
         { ...filterConfig, event: "INSERT" as const },
         (payload: RealtimePostgresChangesPayload<T>) => {
           if (payload.new) {
-            onInsert?.(payload.new as T, payload);
+            callbacksRef.current.onInsert?.(payload.new as T, payload);
           }
         }
       )
@@ -46,7 +51,7 @@ export function useRealtimeTable<T extends { [key: string]: any } = Record<strin
         { ...filterConfig, event: "UPDATE" as const },
         (payload: RealtimePostgresChangesPayload<T>) => {
           if (payload.new) {
-            onUpdate?.(payload.new as T, payload);
+            callbacksRef.current.onUpdate?.(payload.new as T, payload);
           }
         }
       )
@@ -55,7 +60,7 @@ export function useRealtimeTable<T extends { [key: string]: any } = Record<strin
         { ...filterConfig, event: "DELETE" as const },
         (payload: RealtimePostgresChangesPayload<T>) => {
           const oldRecord = (payload.old || payload.new || {}) as Partial<T> & { id?: string };
-          onDelete?.(oldRecord, payload);
+          callbacksRef.current.onDelete?.(oldRecord, payload);
         }
       )
       .subscribe();
@@ -63,5 +68,68 @@ export function useRealtimeTable<T extends { [key: string]: any } = Record<strin
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [table, schema, filter, onInsert, onUpdate, onDelete]);
+  }, [table, schema, filter]);
+}
+
+export interface UseRealtimeTablesOptions {
+  tables: string[];
+  schema?: string;
+  onChange: (table: string, payload: RealtimePostgresChangesPayload<any>) => void;
+  debounceMs?: number;
+}
+
+export function useRealtimeTables({
+  tables,
+  schema = "public",
+  onChange,
+  debounceMs = 300,
+}: UseRealtimeTablesOptions) {
+  const onChangeRef = useRef(onChange);
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  });
+
+  const tablesKey = tables.slice().sort().join(",");
+
+  useEffect(() => {
+    if (!isSupabaseConfigured() || tables.length === 0) return;
+
+    const supabase = createClient();
+    const channelName = `realtime:multi:${tablesKey}`;
+    let timer: NodeJS.Timeout | null = null;
+
+    const debouncedOnChange = (table: string, payload: RealtimePostgresChangesPayload<any>) => {
+      if (debounceMs > 0) {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => {
+          onChangeRef.current?.(table, payload);
+        }, debounceMs);
+      } else {
+        onChangeRef.current?.(table, payload);
+      }
+    };
+
+    let channel = supabase.channel(channelName);
+
+    tables.forEach((table) => {
+      channel = channel.on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema,
+          table,
+        },
+        (payload: RealtimePostgresChangesPayload<any>) => {
+          debouncedOnChange(table, payload);
+        }
+      );
+    });
+
+    channel.subscribe();
+
+    return () => {
+      if (timer) clearTimeout(timer);
+      supabase.removeChannel(channel);
+    };
+  }, [tablesKey, schema, debounceMs]);
 }

@@ -21,6 +21,7 @@ import { SprintFormData, SprintStats, SprintStatus, SprintWithDetails } from "@/
 import { ProjectWithDetails } from "@/types/project";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/components/ui/toast";
+import { useRealtimeTables } from "@/hooks/use-realtime";
 
 export default function SprintsPage() {
   const { user } = useAuth();
@@ -63,6 +64,12 @@ export default function SprintsPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Realtime subscription for sprints, projects, and tasks
+  useRealtimeTables({
+    tables: ["sprints", "projects", "tasks"],
+    onChange: loadData,
+  });
 
   const handleOpenAddSprint = () => {
     setSelectedSprint(null);

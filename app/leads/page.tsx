@@ -34,6 +34,7 @@ import { ProjectFormData } from "@/types/project";
 import { TeamMember } from "@/types/team";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/components/ui/toast";
+import { useRealtimeTables } from "@/hooks/use-realtime";
 
 export default function LeadsPage() {
   const { user } = useAuth();
@@ -99,6 +100,12 @@ export default function LeadsPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Realtime subscription for leads, activities, and followups
+  useRealtimeTables({
+    tables: ["leads", "lead_activities", "lead_followups"],
+    onChange: loadData,
+  });
 
   const handleStatusChange = async (leadId: string, newStatus: LeadStatus) => {
     const actorName = user?.fullName || "Ranjith";

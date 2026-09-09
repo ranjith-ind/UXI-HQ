@@ -17,44 +17,12 @@ import { ClientService, INITIAL_CLIENTS } from "./client.service";
 const LOCAL_PROJECTS_KEY = "uxi_projects_store";
 const LOCAL_PROJECT_MEMBERS_KEY = "uxi_project_members_store";
 
-export const INITIAL_TEAM_MEMBERS = [
-  {
-    id: "tm-1-ranjith",
-    name: "Ranjith",
-    email: "ranjith@uxitech.in",
-    role: "Admin",
-    title: "Founder & CEO",
-    avatar_url: "/avatars/ranjith.png",
-  },
-  {
-    id: "tm-2-hafi",
-    name: "Hafi",
-    email: "hafi@uxitech.in",
-    role: "Admin",
-    title: "Co-Founder & CTO",
-    avatar_url: "/avatars/hafi.png",
-  },
-  {
-    id: "tm-3-vedesh",
-    name: "Vedesh",
-    email: "vedesh@uxitech.in",
-    role: "Admin",
-    title: "Co-Founder & Head of Design",
-    avatar_url: "/avatars/vedesh.png",
-  },
-  {
-    id: "tm-4-praneeth",
-    name: "Praneeth",
-    email: "praneeth@uxitech.in",
-    role: "Admin",
-    title: "Co-Founder & Lead Engineer",
-    avatar_url: "/avatars/praneeth.png",
-  },
-];
+export const INITIAL_TEAM_MEMBERS: any[] = [];
 
 export const INITIAL_PROJECTS: Project[] = [];
 
 export const INITIAL_PROJECT_MEMBERS: Record<string, string[]> = {};
+
 
 export class ProjectService {
   private static getLocalProjects(): Project[] {
@@ -70,7 +38,6 @@ export class ProjectService {
     }
   }
 
-
   private static saveLocalProjects(projects: Project[]) {
     if (typeof window === "undefined") return;
     try {
@@ -81,16 +48,15 @@ export class ProjectService {
   }
 
   private static getLocalMembersMap(): Record<string, string[]> {
-    if (typeof window === "undefined") return INITIAL_PROJECT_MEMBERS;
+    if (typeof window === "undefined") return {};
     try {
       const stored = localStorage.getItem(LOCAL_PROJECT_MEMBERS_KEY);
       if (stored) {
         return JSON.parse(stored);
       }
-      localStorage.setItem(LOCAL_PROJECT_MEMBERS_KEY, JSON.stringify(INITIAL_PROJECT_MEMBERS));
-      return INITIAL_PROJECT_MEMBERS;
+      return {};
     } catch {
-      return INITIAL_PROJECT_MEMBERS;
+      return {};
     }
   }
 
@@ -160,17 +126,13 @@ export class ProjectService {
         }
 
         const { data, error } = await query;
-        if (error) {
-          console.error("Supabase project query error:", error);
-          rawProjects = [];
-        } else if (!data) {
-          rawProjects = [];
+        if (error || !data) {
+          rawProjects = this.getLocalProjects();
         } else {
           rawProjects = data as unknown as Project[];
         }
-      } catch (err) {
-        console.error("Supabase project query exception:", err);
-        rawProjects = [];
+      } catch {
+        rawProjects = this.getLocalProjects();
       }
     } else {
       rawProjects = this.getLocalProjects().filter((p) => p.is_archived === isArchivedTarget);
@@ -197,21 +159,24 @@ export class ProjectService {
     // Map projects into ProjectWithDetails
     let detailedProjects: ProjectWithDetails[] = rawProjects.map((p) => {
       const client = allClients.find((c) => c.id === p.client_id) || null;
-      const assignedIds = membersMap[p.id] || ["tm-1-ranjith"];
-      const team_members: ProjectMember[] = assignedIds.map((mid) => {
-        const tm = INITIAL_TEAM_MEMBERS.find((m) => m.id === mid) || INITIAL_TEAM_MEMBERS[0];
-        return {
-          id: `pm-${p.id}-${tm.id}`,
-          project_id: p.id,
-          team_member_id: tm.id,
-          name: tm.name,
-          email: tm.email,
-          role: tm.role,
-          title: tm.title,
-          avatar_url: tm.avatar_url,
-          assigned_at: p.created_at,
-        };
-      });
+      const assignedIds = membersMap[p.id] || [];
+      const team_members: ProjectMember[] = [];
+      for (const mid of assignedIds) {
+        const tm = INITIAL_TEAM_MEMBERS.find((m) => m.id === mid);
+        if (tm) {
+          team_members.push({
+            id: `pm-${p.id}-${tm.id}`,
+            project_id: p.id,
+            team_member_id: tm.id,
+            name: tm.name,
+            email: tm.email,
+            role: tm.role,
+            title: tm.title,
+            avatar_url: tm.avatar_url,
+            assigned_at: p.created_at,
+          });
+        }
+      }
 
       let isOverdue = false;
       let daysRemaining: number | null = null;
@@ -346,92 +311,56 @@ export class ProjectService {
     const advanceAmount = Number(data.advance_amount || 0);
     const pendingAmount = Math.max(0, finalBudget - advanceAmount);
 
+    const newProject: Project = {
+      id: "proj-" + Math.random().toString(36).substring(2, 9) + Date.now(),
+      client_id: data.client_id,
+      project_name: data.project_name.trim(),
+      project_code: data.project_code?.trim() || this.generateNextProjectCode(),
+      project_type: data.project_type || "Web Application",
+      description: data.description?.trim() || null,
+      requirements: data.requirements?.trim() || null,
+      project_status: data.project_status || "Confirmed",
+      priority: data.priority || "Medium",
+      estimated_budget: Number(data.estimated_budget || 0),
+      final_budget: finalBudget,
+      currency: data.currency || "INR",
+      advance_amount: advanceAmount,
+      total_paid_amount: advanceAmount,
+      pending_amount: pendingAmount,
+      start_date: data.start_date || null,
+      estimated_deadline: data.estimated_deadline || null,
+      actual_completion_date: null,
+      project_url: data.project_url?.trim() || null,
+      repository_url: data.repository_url?.trim() || null,
+      project_notes: data.project_notes?.trim() || null,
+      is_archived: false,
+      archived_at: null,
+      created_by: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
     if (isSupabaseConfigured()) {
       try {
         const supabase = createClient();
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-
-        const insertPayload: Record<string, unknown> = {
-          client_id: data.client_id,
-          project_name: data.project_name.trim(),
-          project_code: data.project_code?.trim() || this.generateNextProjectCode(),
-          project_type: data.project_type || "Web Application",
-          description: data.description?.trim() || null,
-          requirements: data.requirements?.trim() || null,
-          project_status: data.project_status || "Confirmed",
-          priority: data.priority || "Medium",
-          estimated_budget: Number(data.estimated_budget || 0),
-          final_budget: finalBudget,
-          currency: data.currency || "INR",
-          advance_amount: advanceAmount,
-          total_paid_amount: advanceAmount,
-          pending_amount: pendingAmount,
-          start_date: data.start_date || null,
-          estimated_deadline: data.estimated_deadline || null,
-          actual_completion_date: null,
-          project_url: data.project_url?.trim() || null,
-          repository_url: data.repository_url?.trim() || null,
-          project_notes: data.project_notes?.trim() || null,
-          is_archived: false,
-          archived_at: null,
-          created_by: user?.id || null,
-        };
-
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: inserted, error } = await (supabase.from("projects") as any)
-          .insert(insertPayload)
+          .insert(newProject)
           .select()
           .single();
 
         if (error) {
-          console.error("Supabase project insert error:", error);
           return { success: false, error: error.message };
         }
 
         const project = inserted as unknown as Project;
-        await ClientService.logActivity(
-          actorName,
-          "created new project",
-          `${project.project_name} (${project.project_code})`,
-          project.id
-        );
+        await ClientService.logActivity(actorName, "created new project", `${project.project_name} (${project.project_code})`, project.id);
         return { success: true, project };
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : "Failed to create project";
         return { success: false, error: msg };
       }
     } else {
-      const newProject: Project = {
-        id: crypto.randomUUID ? crypto.randomUUID() : "proj-" + Date.now(),
-        client_id: data.client_id,
-        project_name: data.project_name.trim(),
-        project_code: data.project_code?.trim() || this.generateNextProjectCode(),
-        project_type: data.project_type || "Web Application",
-        description: data.description?.trim() || null,
-        requirements: data.requirements?.trim() || null,
-        project_status: data.project_status || "Confirmed",
-        priority: data.priority || "Medium",
-        estimated_budget: Number(data.estimated_budget || 0),
-        final_budget: finalBudget,
-        currency: data.currency || "INR",
-        advance_amount: advanceAmount,
-        total_paid_amount: advanceAmount,
-        pending_amount: pendingAmount,
-        start_date: data.start_date || null,
-        estimated_deadline: data.estimated_deadline || null,
-        actual_completion_date: null,
-        project_url: data.project_url?.trim() || null,
-        repository_url: data.repository_url?.trim() || null,
-        project_notes: data.project_notes?.trim() || null,
-        is_archived: false,
-        archived_at: null,
-        created_by: null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-
       const local = this.getLocalProjects();
       local.unshift(newProject);
       this.saveLocalProjects(local);
@@ -443,16 +372,10 @@ export class ProjectService {
         this.saveLocalMembersMap(membersMap);
       }
 
-      await ClientService.logActivity(
-        actorName,
-        "created new project",
-        `${newProject.project_name} (${newProject.project_code})`,
-        newProject.id
-      );
+      await ClientService.logActivity(actorName, "created new project", `${newProject.project_name} (${newProject.project_code})`, newProject.id);
       return { success: true, project: newProject };
     }
   }
-
 
   static async updateProject(
     id: string,
@@ -646,7 +569,7 @@ export class ProjectService {
   static async assignTeamMember(
     projectId: string,
     memberId: string,
-    actorName: string = "Ranjith"
+    actorName: string = "User"
   ): Promise<{ success: boolean; error?: string }> {
     const membersMap = this.getLocalMembersMap();
     const current = membersMap[projectId] || [];
@@ -670,7 +593,7 @@ export class ProjectService {
   static async removeTeamMember(
     projectId: string,
     memberId: string,
-    actorName: string = "Ranjith"
+    actorName: string = "User"
   ): Promise<{ success: boolean; error?: string }> {
     const membersMap = this.getLocalMembersMap();
     let current = membersMap[projectId] || [];

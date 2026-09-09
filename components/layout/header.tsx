@@ -89,17 +89,17 @@ export function Header({ onOpenMobileMenu }: HeaderProps) {
           title={
             hasSupabase
               ? "Connected to Live Supabase Database"
-              : "Running in Demo Mode with Mock Database"
+              : "Disconnected: Supabase Configuration Missing"
           }
           className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border border-[#E6EAF2] bg-[#F7F9FC]"
         >
           <span
             className={`w-2 h-2 rounded-full ${
-              hasSupabase ? "bg-emerald-500" : "bg-[#2451EB]"
+              hasSupabase ? "bg-emerald-500" : "bg-rose-500"
             }`}
           />
           <span className="text-[#5B6472] font-mono text-[10px]">
-            {hasSupabase ? "Supabase Live" : "UXI Demo"}
+            {hasSupabase ? "Supabase Live" : "Disconnected"}
           </span>
         </div>
 

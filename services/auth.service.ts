@@ -1,4 +1,4 @@
-﻿import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { UserRole } from "@/types";
 
 export interface AuthUser {
@@ -13,13 +13,7 @@ export interface AuthUser {
 export class AuthService {
   static async login(email: string, pass: string): Promise<AuthUser | null> {
     if (!isSupabaseConfigured()) {
-      return {
-        id: '',
-        email,
-        fullName: "Ranjith Kumar",
-        role: "Admin",
-        createdAt: new Date().toISOString(),
-      };
+      return null;
     }
 
     const supabase = createClient();
@@ -35,7 +29,7 @@ export class AuthService {
 
     const user = data.user;
     let role: UserRole = "Admin";
-    let fullName = user.user_metadata?.full_name || user.user_metadata?.name || "Ranjith Kumar";
+    let fullName = user.user_metadata?.full_name || user.user_metadata?.name || "Team Member";
     let avatarUrl = user.user_metadata?.avatar_url;
 
     try {
@@ -64,57 +58,9 @@ export class AuthService {
     };
   }
 
-  static async loginAsFounder(email: string = "admin@uxitech.in"): Promise<AuthUser | null> {
-    if (!isSupabaseConfigured()) {
-      return {
-        id: "founder-admin-id",
-        email,
-        fullName: "Ranjith Kumar",
-        role: "Admin",
-        createdAt: new Date().toISOString(),
-      };
-    }
-
-    const supabase = createClient();
-    try {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("email", email)
-        .single();
-
-      if (profile) {
-        return {
-          id: profile.id,
-          email: profile.email,
-          fullName: profile.full_name || "Ranjith Kumar",
-          role: (profile.role as UserRole) || "Admin",
-          avatarUrl: profile.avatar_url,
-          createdAt: profile.created_at,
-        };
-      }
-    } catch (err) {
-      console.warn("Supabase loginAsFounder profile query failed:", err);
-    }
-
-    return {
-      id: "founder-fallback-id",
-      email,
-      fullName: "Ranjith Kumar",
-      role: "Admin",
-      createdAt: new Date().toISOString(),
-    };
-  }
-
   static async getCurrentUser(): Promise<AuthUser | null> {
     if (!isSupabaseConfigured()) {
-      return {
-        id: '',
-        email: "admin@uxitech.in",
-        fullName: "Ranjith Kumar",
-        role: "Admin",
-        createdAt: new Date().toISOString(),
-      };
+      return null;
     }
 
     const supabase = createClient();
@@ -128,7 +74,7 @@ export class AuthService {
     }
 
     let role: UserRole = "Admin";
-    let fullName = user.user_metadata?.full_name || user.user_metadata?.name || "Ranjith Kumar";
+    let fullName = user.user_metadata?.full_name || user.user_metadata?.name || "Team Member";
     let avatarUrl = user.user_metadata?.avatar_url;
 
     try {

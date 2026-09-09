@@ -43,7 +43,7 @@ export class FinanceService {
       .reduce((sum, i) => sum + Number(i.amount_due), 0);
 
     const totalInvoiced = nonCancelledInvoices.reduce((sum, i) => sum + Number(i.total_amount), 0);
-    const collectionRate = totalInvoiced > 0 ? Math.round((totalRevenue / totalInvoiced) * 100) : 100;
+    const collectionRate = totalInvoiced > 0 ? Math.round((totalRevenue / totalInvoiced) * 100) : 0;
 
     return {
       totalRevenue,
@@ -82,14 +82,11 @@ export class FinanceService {
       const monthInvoices = nonCancelledInvoices.filter((inv) => inv.issue_date.startsWith(monthKey));
       const monthInvoiced = monthInvoices.reduce((sum, inv) => sum + Number(inv.total_amount), 0);
 
-      // Baseline monthly trend for smooth chart experience
-      const simulatedBaseline = (6 - i) * 60000;
-
       result.push({
         month: monthLabel,
-        revenue: monthRevenue > 0 ? monthRevenue : simulatedBaseline,
-        invoiced: monthInvoiced > 0 ? monthInvoiced : simulatedBaseline + 40000,
-        collectionsCount: monthPayments.length || 1,
+        revenue: monthRevenue,
+        invoiced: monthInvoiced,
+        collectionsCount: monthPayments.length,
       });
     }
 

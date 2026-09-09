@@ -28,6 +28,7 @@ import {
 import { formatCurrency } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/components/ui/toast";
+import { useRealtimeTables } from "@/hooks/use-realtime";
 
 export default function ExpensesPage() {
   const { user } = useAuth();
@@ -90,6 +91,12 @@ export default function ExpensesPage() {
   useEffect(() => {
     loadExpenseData();
   }, [loadExpenseData]);
+
+  // Realtime subscription for expenses and categories
+  useRealtimeTables({
+    tables: ["expenses", "expense_categories"],
+    onChange: loadExpenseData,
+  });
 
   const handleMarkPaid = async (exp: ExpenseWithDetails) => {
     const actorName = user?.fullName || "Ranjith";

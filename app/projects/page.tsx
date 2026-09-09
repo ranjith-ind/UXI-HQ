@@ -12,6 +12,7 @@ import { ProjectArchiveModal } from "@/components/projects/project-archive-modal
 import { ProjectEmptyState } from "@/components/projects/project-empty-state";
 import { ProjectService } from "@/services/project.service";
 import { ClientService } from "@/services/client.service";
+import { TeamService } from "@/services/team.service";
 import {
   DeadlineFilterOption,
   ProjectFormData,
@@ -23,6 +24,7 @@ import {
   ProjectWithDetails,
 } from "@/types/project";
 import { ClientWithDetails } from "@/types/client";
+import { TeamMemberWithDetails } from "@/types/team";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/components/ui/toast";
 
@@ -32,6 +34,7 @@ export default function ProjectsPage() {
 
   const [projects, setProjects] = useState<ProjectWithDetails[]>([]);
   const [clientsList, setClientsList] = useState<ClientWithDetails[]>([]);
+  const [teamMembersList, setTeamMembersList] = useState<TeamMemberWithDetails[]>([]);
   const [stats, setStats] = useState<IProjectStats>({
     totalProjects: 0,
     activeProjects: 0,
@@ -63,7 +66,7 @@ export default function ProjectsPage() {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const [fetchedProjects, fetchedClients, fetchedStats] = await Promise.all([
+      const [fetchedProjects, fetchedClients, fetchedStats, fetchedTeam] = await Promise.all([
         ProjectService.getProjects({
           search,
           status: statusFilter,
@@ -77,11 +80,13 @@ export default function ProjectsPage() {
         }),
         ClientService.getClients(),
         ProjectService.getStats(),
+        TeamService.getTeamMembers(),
       ]);
 
       setProjects(fetchedProjects);
       setClientsList(fetchedClients);
       setStats(fetchedStats);
+      setTeamMembersList(fetchedTeam);
     } catch (err) {
       console.error("Failed to load projects data:", err);
       toastError("Failed to fetch projects");
@@ -236,6 +241,7 @@ export default function ProjectsPage() {
         sortBy={sortBy}
         onSortByChange={setSortBy}
         clientsList={clientsList}
+        teamMembersList={teamMembersList}
         totalCount={projects.length}
       />
 

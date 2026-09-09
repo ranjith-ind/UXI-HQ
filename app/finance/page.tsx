@@ -35,6 +35,7 @@ import { PaymentWithDetails } from "@/types/payment";
 import { formatCurrency } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/components/ui/toast";
+import { useRealtimeTables } from "@/hooks/use-realtime";
 
 export default function FinancePage() {
   const { user } = useAuth();
@@ -90,6 +91,12 @@ export default function FinancePage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Realtime subscription for finance (payments, invoices, clients, projects)
+  useRealtimeTables({
+    tables: ["payments", "invoices", "invoice_items", "clients", "projects"],
+    onChange: loadData,
+  });
 
   const handleCreateInvoice = async (formData: InvoiceFormData) => {
     const res = await InvoiceService.createInvoice(formData, user?.fullName || "Ranjith");

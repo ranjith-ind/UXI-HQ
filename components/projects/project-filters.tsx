@@ -19,7 +19,7 @@ import {
   PROJECT_TYPES_LIST,
 } from "@/types/project";
 import { ClientWithDetails } from "@/types/client";
-import { INITIAL_TEAM_MEMBERS } from "@/services/project.service";
+import { TeamMemberWithDetails } from "@/types/team";
 import { cn } from "@/lib/utils";
 
 interface ProjectFiltersProps {
@@ -42,6 +42,7 @@ interface ProjectFiltersProps {
   sortBy: ProjectSortOption;
   onSortByChange: (val: ProjectSortOption) => void;
   clientsList: ClientWithDetails[];
+  teamMembersList?: TeamMemberWithDetails[];
   totalCount: number;
 }
 
@@ -85,6 +86,7 @@ export function ProjectFilters({
   sortBy,
   onSortByChange,
   clientsList,
+  teamMembersList,
   totalCount,
 }: ProjectFiltersProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -292,9 +294,9 @@ export function ProjectFilters({
               className="w-full h-9 rounded-xl border border-slate-200 bg-slate-50 px-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-blue-500 shadow-2xs"
             >
               <option value="">All Team Leads</option>
-              {INITIAL_TEAM_MEMBERS.map((tm) => (
+              {teamMembersList && teamMembersList.map((tm) => (
                 <option key={tm.id} value={tm.id}>
-                  {tm.name} ({tm.role})
+                  {tm.full_name || (tm as any).name} ({tm.role})
                 </option>
               ))}
             </select>

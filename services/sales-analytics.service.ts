@@ -48,7 +48,7 @@ export class SalesAnalyticsService {
         countedLeads++;
       }
     });
-    const averageSalesCycleDays = countedLeads > 0 ? Math.round(totalCycleDays / countedLeads) : 14;
+    const averageSalesCycleDays = countedLeads > 0 ? Math.round(totalCycleDays / countedLeads) : 0;
 
     // Build Stages
     const stages: SalesPipelineStage[] = PIPELINE_STAGES.map((stage) => {
@@ -149,35 +149,28 @@ export class SalesAnalyticsService {
     const leads = await LeadService.getLeads();
     const months = ["Mar 2026", "Apr 2026", "May 2026", "Jun 2026", "Jul 2026", "Aug 2026"];
 
-    return months.map((m, idx) => {
-      const isCurrentMonth = idx === months.length - 1;
+    return months.map((m) => {
+      const leadsInMonth = leads.filter((l) => {
+        if (!l.created_at) return false;
+        const d = new Date(l.created_at);
+        const label = d.toLocaleString("en-US", { month: "short", year: "numeric" });
+        return label === m;
+      });
 
-      if (isCurrentMonth) {
-        const newCount = leads.filter((l) => l.lead_status !== "Won" && l.lead_status !== "Lost").length;
-        const wonCount = leads.filter((l) => l.lead_status === "Won").length;
-        const lostCount = leads.filter((l) => l.lead_status === "Lost").length;
-        const wonRev = leads
-          .filter((l) => l.lead_status === "Won")
-          .reduce((sum, l) => sum + Number(l.estimated_value), 0);
+      const newLeads = leadsInMonth.filter((l) => l.lead_status !== "Won" && l.lead_status !== "Lost").length;
+      const wonLeads = leadsInMonth.filter((l) => l.lead_status === "Won").length;
+      const lostLeads = leadsInMonth.filter((l) => l.lead_status === "Lost").length;
+      const wonRevenue = leadsInMonth
+        .filter((l) => l.lead_status === "Won")
+        .reduce((sum, l) => sum + Number(l.estimated_value || 0), 0);
 
-        return {
-          month: m,
-          newLeads: Math.max(3, newCount),
-          wonLeads: Math.max(1, wonCount),
-          lostLeads: lostCount,
-          wonRevenue: wonRev > 0 ? wonRev : 250000,
-        };
-      }
-
-      // Past trend baseline
-      const mockPast = [
-        { month: "Mar 2026", newLeads: 4, wonLeads: 2, lostLeads: 1, wonRevenue: 380000 },
-        { month: "Apr 2026", newLeads: 6, wonLeads: 3, lostLeads: 1, wonRevenue: 520000 },
-        { month: "May 2026", newLeads: 5, wonLeads: 2, lostLeads: 2, wonRevenue: 410000 },
-        { month: "Jun 2026", newLeads: 7, wonLeads: 4, lostLeads: 1, wonRevenue: 650000 },
-        { month: "Jul 2026", newLeads: 8, wonLeads: 3, lostLeads: 2, wonRevenue: 580000 },
-      ];
-      return mockPast[idx];
+      return {
+        month: m,
+        newLeads,
+        wonLeads,
+        lostLeads,
+        wonRevenue,
+      };
     });
   }
 

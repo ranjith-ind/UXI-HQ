@@ -31,6 +31,7 @@ export const INITIAL_EXPENSE_CATEGORIES: ExpenseCategory[] = DEFAULT_EXPENSE_CAT
 
 export const INITIAL_EXPENSES: Expense[] = [];
 
+
 export class ExpenseService {
   private static getLocalExpenses(): Expense[] {
     if (typeof window === "undefined") return [];
@@ -43,7 +44,6 @@ export class ExpenseService {
     }
   }
 
-
   private static saveLocalExpenses(expenses: Expense[]) {
     if (typeof window === "undefined") return;
     try {
@@ -54,14 +54,13 @@ export class ExpenseService {
   }
 
   private static getLocalCategories(): ExpenseCategory[] {
-    if (typeof window === "undefined") return INITIAL_EXPENSE_CATEGORIES;
+    if (typeof window === "undefined") return [];
     try {
       const stored = localStorage.getItem(LOCAL_CATEGORIES_KEY);
       if (stored) return JSON.parse(stored);
-      localStorage.setItem(LOCAL_CATEGORIES_KEY, JSON.stringify(INITIAL_EXPENSE_CATEGORIES));
-      return INITIAL_EXPENSE_CATEGORIES;
+      return [];
     } catch {
-      return INITIAL_EXPENSE_CATEGORIES;
+      return [];
     }
   }
 
@@ -88,12 +87,12 @@ export class ExpenseService {
       try {
         const supabase = createClient();
         const { data, error } = await supabase.from("expense_categories").select("*").order("name");
-        if (error || !data || data.length === 0) {
-          return this.getLocalCategories();
+        if (error || !data) {
+          return [];
         }
         return data as unknown as ExpenseCategory[];
       } catch {
-        return this.getLocalCategories();
+        return [];
       }
     }
     return this.getLocalCategories();
@@ -196,17 +195,13 @@ export class ExpenseService {
         }
 
         const { data, error } = await query;
-        if (error) {
-          console.error("Supabase expense query error:", error);
-          rawExpenses = [];
-        } else if (!data) {
-          rawExpenses = [];
+        if (error || !data) {
+          rawExpenses = this.getLocalExpenses();
         } else {
           rawExpenses = data as unknown as Expense[];
         }
-      } catch (err) {
-        console.error("Supabase expense query exception:", err);
-        rawExpenses = [];
+      } catch {
+        rawExpenses = this.getLocalExpenses();
       }
     } else {
       rawExpenses = this.getLocalExpenses();

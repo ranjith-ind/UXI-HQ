@@ -24,6 +24,7 @@ import {
 import { formatCurrency } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/components/ui/toast";
+import { useRealtimeTables } from "@/hooks/use-realtime";
 import { StatsCard } from "@/components/dashboard/stats-card";
 
 export default function PaymentsLedgerPage() {
@@ -77,6 +78,15 @@ export default function PaymentsLedgerPage() {
   useEffect(() => {
     loadPayments();
   }, [loadPayments]);
+
+  // Real-time synchronization for payments and invoices
+  useRealtimeTables({
+    tables: ["payments", "invoices"],
+    onChange: () => {
+      loadPayments();
+    },
+    debounceMs: 300,
+  });
 
   const handleDelete = async (payment: PaymentWithDetails) => {
     const res = await PaymentService.deletePayment(payment.id, user?.fullName || "Ranjith");

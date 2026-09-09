@@ -6,115 +6,15 @@ import {
   ActivityStats,
 } from "@/types/activity";
 
-// Initial seed mock activities across all business domains
-let mockActivities: ActivityLog[] = [
-  {
-    id: "act-1",
-    actor_name: "Ranjith",
-    actor_avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face",
-    action: "Converted",
-    entity_type: "lead",
-    entity_id: "lead-1",
-    description: "Converted TechNova Solutions from Sales Pipeline to Active Enterprise Client.",
-    module: "Sales CRM",
-    created_at: new Date(Date.now() - 15 * 60 * 1000).toISOString(), // 15 mins ago
-  },
-  {
-    id: "act-2",
-    actor_name: "Vedesh",
-    actor_avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-    action: "Paid",
-    entity_type: "payment",
-    entity_id: "pay-1",
-    description: "Recorded payment receipt of ₹2,50,000 for Invoice INV-2026-003.",
-    module: "Finance",
-    created_at: new Date(Date.now() - 45 * 60 * 1000).toISOString(), // 45 mins ago
-  },
-  {
-    id: "act-3",
-    actor_name: "Hafi",
-    actor_avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    action: "Completed",
-    entity_type: "task",
-    entity_id: "task-101",
-    description: "Completed Sprint 2 Task: PostgreSQL Partitioning & Indexing Tuning.",
-    module: "Tasks",
-    created_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString(), // 2 hours ago
-  },
-  {
-    id: "act-4",
-    actor_name: "Praneeth",
-    actor_avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&h=150&fit=crop&crop=face",
-    action: "Updated",
-    entity_type: "project",
-    entity_id: "proj-1",
-    description: "Advanced Clienter Platform status from In Development to Client Review.",
-    module: "Projects",
-    created_at: new Date(Date.now() - 4 * 3600 * 1000).toISOString(), // 4 hours ago
-  },
-  {
-    id: "act-5",
-    actor_name: "Vedesh",
-    actor_avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-    action: "Logged",
-    entity_type: "expense",
-    entity_id: "exp-3",
-    description: "Logged cloud infrastructure monthly expense: AWS Production Cluster ($350).",
-    module: "Expenses",
-    created_at: new Date(Date.now() - 8 * 3600 * 1000).toISOString(), // 8 hours ago
-  },
-  {
-    id: "act-6",
-    actor_name: "Ranjith",
-    actor_avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face",
-    action: "Created",
-    entity_type: "client",
-    entity_id: "cli-3",
-    description: "Onboarded new enterprise client: QuantPulse Analytics.",
-    module: "Clients",
-    created_at: new Date(Date.now() - 24 * 3600 * 1000).toISOString(), // Yesterday
-  },
-  {
-    id: "act-7",
-    actor_name: "Hafi",
-    actor_avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    action: "Assigned",
-    entity_type: "task",
-    entity_id: "task-105",
-    description: "Assigned Frontend Optimization sprint task to Praneeth.",
-    module: "Tasks",
-    created_at: new Date(Date.now() - 30 * 3600 * 1000).toISOString(), // Yesterday
-  },
-  {
-    id: "act-8",
-    actor_name: "Ranjith",
-    actor_avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face",
-    action: "Created",
-    entity_type: "lead",
-    entity_id: "lead-5",
-    description: "Added new inbound prospect: NexaFlow Commerce (₹4.2L).",
-    module: "Sales CRM",
-    created_at: new Date(Date.now() - 48 * 3600 * 1000).toISOString(), // 2 days ago
-  },
-  {
-    id: "act-9",
-    actor_name: "Vedesh",
-    actor_avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-    action: "Created",
-    entity_type: "invoice",
-    entity_id: "inv-5",
-    description: "Generated milestone invoice INV-2026-005 for CloudSync Pro.",
-    module: "Finance",
-    created_at: new Date(Date.now() - 60 * 3600 * 1000).toISOString(), // 2 days ago
-  },
-];
+// In-memory activities store
+let mockActivities: ActivityLog[] = [];
 
 export class ActivityService {
   /**
    * Fetch centralized activities with multi-faceted filtering
    */
   static async getActivities(filter?: ActivityFilter): Promise<ActivityLog[]> {
-    let result = [...mockActivities];
+    let result: ActivityLog[] = [...mockActivities];
 
     if (isSupabaseConfigured()) {
       try {
@@ -126,7 +26,7 @@ export class ActivityService {
         }
 
         const { data, error } = await query;
-        if (!error && data && data.length > 0) {
+        if (!error && data) {
           result = data.map((item: any) => ({
             id: item.id,
             user_id: item.user_id,
@@ -142,7 +42,7 @@ export class ActivityService {
           }));
         }
       } catch (err) {
-        console.warn("Supabase activity logs fetch warning, using fallback:", err);
+        console.warn("Supabase activity logs fetch warning:", err);
       }
     }
 

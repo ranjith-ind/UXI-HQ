@@ -40,14 +40,14 @@ export function SalesSnapshot() {
         <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
           <span className="text-[10px] text-slate-400 font-bold uppercase block font-display">Active Deals</span>
           <span className="text-base font-extrabold text-blue-700 mt-0.5 block truncate font-display">
-            {stats ? stats.activeOpportunities : "7"} Deals
+            {stats ? stats.activeOpportunities : 0} Deals
           </span>
         </div>
 
         <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
           <span className="text-[10px] text-slate-400 font-bold uppercase block font-display">Pipeline</span>
           <span className="text-base font-extrabold text-slate-900 mt-0.5 block truncate font-display">
-            {stats ? formatCurrency(stats.pipelineValue, "INR") : "₹22.0L"}
+            {stats ? formatCurrency(stats.pipelineValue, "INR") : "₹0"}
           </span>
         </div>
 
@@ -58,7 +58,7 @@ export function SalesSnapshot() {
               stats && stats.overdueFollowupsCount > 0 ? "text-rose-700" : "text-amber-700"
             }`}
           >
-            {stats ? `${stats.dueTodayFollowupsCount} today` : "1 today"}
+            {stats ? `${stats.dueTodayFollowupsCount} today` : "0 today"}
           </span>
         </div>
       </div>

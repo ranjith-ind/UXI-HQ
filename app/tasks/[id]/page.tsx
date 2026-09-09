@@ -26,8 +26,9 @@ import { SubtaskList } from "@/components/tasks/subtask-list";
 import { TaskForm } from "@/components/tasks/task-form";
 import { TaskDeleteModal } from "@/components/tasks/task-delete-modal";
 import { TaskService } from "@/services/task.service";
-import { ProjectService, INITIAL_TEAM_MEMBERS } from "@/services/project.service";
+import { ProjectService } from "@/services/project.service";
 import { SprintService } from "@/services/sprint.service";
+import { TeamService } from "@/services/team.service";
 import {
   TaskFormData,
   TaskStatus,
@@ -36,6 +37,7 @@ import {
 } from "@/types/task";
 import { ProjectWithDetails } from "@/types/project";
 import { SprintWithDetails } from "@/types/sprint";
+import { TeamMemberWithDetails } from "@/types/team";
 import { formatDate, cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/components/ui/toast";
@@ -54,6 +56,7 @@ export default function TaskDetailPage({
   const [task, setTask] = useState<TaskWithDetails | null>(null);
   const [projectsList, setProjectsList] = useState<ProjectWithDetails[]>([]);
   const [sprintsList, setSprintsList] = useState<SprintWithDetails[]>([]);
+  const [allTeamMembers, setAllTeamMembers] = useState<TeamMemberWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Modals state
@@ -64,10 +67,11 @@ export default function TaskDetailPage({
   const loadTaskData = useCallback(async () => {
     setLoading(true);
     try {
-      const [fetchedTask, fetchedProjects, fetchedSprints] = await Promise.all([
+      const [fetchedTask, fetchedProjects, fetchedSprints, fetchedTeam] = await Promise.all([
         TaskService.getTaskById(id),
         ProjectService.getProjects({ isArchived: false }),
         SprintService.getSprints(),
+        TeamService.getTeamMembers(),
       ]);
 
       if (!fetchedTask) {
@@ -79,6 +83,7 @@ export default function TaskDetailPage({
       setTask(fetchedTask);
       setProjectsList(fetchedProjects);
       setSprintsList(fetchedSprints);
+      setAllTeamMembers(fetchedTeam);
     } catch (err) {
       console.error("Failed to load task:", err);
       toastError("Error loading task details");
@@ -339,7 +344,7 @@ export default function TaskDetailPage({
                 </div>
 
                 <div className="space-y-1 max-h-48 overflow-y-auto">
-                  {INITIAL_TEAM_MEMBERS.map((tm) => {
+                  {allTeamMembers.map((tm) => {
                     const isAssigned = task.assignees?.some((a) => a.id === tm.id);
                     return (
                       <button
@@ -350,8 +355,8 @@ export default function TaskDetailPage({
                         }`}
                       >
                         <div className="flex items-center gap-2">
-                          <Avatar name={tm.name} size="sm" />
-                          <span>{tm.name}</span>
+                          <Avatar name={tm.full_name || (tm as any).name} size="sm" />
+                          <span>{tm.full_name || (tm as any).name}</span>
                         </div>
                         <span className="text-[10px] text-slate-400">{isAssigned ? "✓ Assigned" : "+ Add"}</span>
                       </button>

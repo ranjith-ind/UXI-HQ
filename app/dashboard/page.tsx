@@ -24,40 +24,70 @@ import {
   Sparkles,
 } from "lucide-react";
 
+import { useRealtimeTables } from "@/hooks/use-realtime";
+
+const DASHBOARD_REALTIME_TABLES = [
+  "projects",
+  "clients",
+  "tasks",
+  "payments",
+  "expenses",
+  "invoices",
+  "leads",
+  "lead_followups",
+  "business_alerts",
+  "activity_logs",
+];
+
 export default function DashboardPage() {
   const { user } = useAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [deadlines, setDeadlines] = useState<UpcomingDeadline[]>([]);
   const [activities, setActivities] = useState<ActivityItem[]>([]);
+  const [chartData, setChartData] = useState<Array<{ month: string; revenue: number; target: number }>>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadDashboardData() {
-      try {
-        const [statsData, projectsData, deadlinesData, activitiesData] =
-          await Promise.all([
-            DashboardService.getStats(),
-            DashboardService.getRecentProjects(),
-            DashboardService.getUpcomingDeadlines(),
-            DashboardService.getRecentActivities(),
-          ]);
+  const loadDashboardData = React.useCallback(async () => {
+    try {
+      const [
+        statsData,
+        projectsData,
+        deadlinesData,
+        activitiesData,
+        revenueData,
+      ] = await Promise.all([
+        DashboardService.getStats(),
+        DashboardService.getRecentProjects(),
+        DashboardService.getUpcomingDeadlines(),
+        DashboardService.getRecentActivities(),
+        DashboardService.getRevenueChartData(),
+      ]);
 
-        setStats(statsData);
-        setProjects(projectsData);
-        setDeadlines(deadlinesData);
-        setActivities(activitiesData);
-      } catch (err) {
-        console.error("Error loading dashboard data:", err);
-      } finally {
-        setLoading(false);
-      }
+      setStats(statsData);
+      setProjects(projectsData);
+      setDeadlines(deadlinesData);
+      setActivities(activitiesData);
+      setChartData(revenueData);
+    } catch (err) {
+      console.error("Error loading dashboard data:", err);
+    } finally {
+      setLoading(false);
     }
-
-    loadDashboardData();
   }, []);
 
-  const chartData = DashboardService.getRevenueChartData();
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
+
+  // Real-time synchronization across all operational tables on a single debounced channel
+  useRealtimeTables({
+    tables: DASHBOARD_REALTIME_TABLES,
+    onChange: (_table) => {
+      loadDashboardData();
+    },
+    debounceMs: 300,
+  });
 
   if (loading) {
     return (
@@ -90,7 +120,7 @@ export default function DashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-xl border border-[#E6EAF2] bg-white">
         <div>
           <h1 className="text-xl sm:text-2xl font-semibold text-[#0F172A] tracking-tight">
-            Welcome back, {user?.fullName || "Ranjith"}
+            Welcome back, {user?.fullName || "Team Member"}
           </h1>
           <p className="text-xs text-[#5B6472] mt-0.5">
             Internal executive dashboard for UXI business operations.
@@ -109,15 +139,15 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
           title="Total Projects"
-          value={stats?.totalProjects ?? 14}
-          changePercent={stats?.activeProjectsChangePercent ?? 12.0}
+          value={stats?.totalProjects ?? 0}
+          changePercent={stats?.activeProjectsChangePercent ?? 0}
           icon={FolderKanban}
           variant="blue"
         />
 
         <StatsCard
           title="Active Projects"
-          value={stats?.activeProjects ?? 6}
+          value={stats?.activeProjects ?? 0}
           subtitle="Currently in engineering or QA"
           icon={Layers}
           variant="cyan"
@@ -125,16 +155,16 @@ export default function DashboardPage() {
 
         <StatsCard
           title="Total Clients"
-          value={stats?.totalClients ?? 9}
-          changePercent={stats?.totalClientsChangePercent ?? 18.2}
+          value={stats?.totalClients ?? 0}
+          changePercent={stats?.totalClientsChangePercent ?? 0}
           icon={Users2}
           variant="violet"
         />
 
         <StatsCard
           title="Total Revenue"
-          value={stats ? formatCurrency(stats.totalRevenue, "INR") : "₹18,50,000"}
-          changePercent={stats?.totalRevenueChangePercent ?? 24.5}
+          value={stats ? formatCurrency(stats.totalRevenue, "INR") : "₹0"}
+          changePercent={stats?.totalRevenueChangePercent ?? 0}
           icon={TrendingUp}
           variant="emerald"
         />

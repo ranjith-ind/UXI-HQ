@@ -40,21 +40,21 @@ export function FinanceSnapshot() {
         <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
           <span className="text-[10px] text-slate-400 font-bold uppercase block font-display">Total Revenue</span>
           <span className="text-sm font-extrabold text-emerald-700 mt-0.5 block truncate font-display">
-            {profitability ? formatCurrency(profitability.totalRevenue, "INR") : "₹7.25L"}
+            {profitability ? formatCurrency(profitability.totalRevenue, "INR") : "₹0"}
           </span>
         </div>
 
         <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
           <span className="text-[10px] text-slate-400 font-bold uppercase block font-display">Total Expenses</span>
           <span className="text-sm font-extrabold text-rose-700 mt-0.5 block truncate font-display">
-            {profitability ? formatCurrency(profitability.totalExpenses, "INR") : "₹54.4K"}
+            {profitability ? formatCurrency(profitability.totalExpenses, "INR") : "₹0"}
           </span>
         </div>
 
         <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
           <span className="text-[10px] text-slate-400 font-bold uppercase block font-display">Net Margin</span>
           <span className="text-sm font-extrabold text-blue-700 mt-0.5 block truncate font-display">
-            {profitability ? `${profitability.profitMargin}%` : "92.5%"}
+            {profitability ? `${profitability.profitMargin}%` : "0%"}
           </span>
         </div>
       </div>

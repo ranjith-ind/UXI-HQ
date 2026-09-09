@@ -29,6 +29,7 @@ import { ExpenseWithDetails } from "@/types/expense";
 import { formatCurrency, formatDate, formatRelativeTime } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/components/ui/toast";
+import { useRealtimeTables } from "@/hooks/use-realtime";
 
 export default function ExpenseDetailPage({
   params,
@@ -69,6 +70,12 @@ export default function ExpenseDetailPage({
   useEffect(() => {
     loadExpense();
   }, [loadExpense]);
+
+  // Realtime subscription for expense details and category changes
+  useRealtimeTables({
+    tables: ["expenses", "expense_categories"],
+    onChange: loadExpense,
+  });
 
   const handleMarkPaid = async () => {
     if (!expense) return;

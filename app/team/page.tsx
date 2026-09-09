@@ -33,6 +33,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/components/ui/toast";
 import { Dropdown, DropdownItem } from "@/components/ui/dropdown";
+import { useRealtimeTables } from "@/hooks/use-realtime";
 
 export default function TeamPage() {
   const { user } = useAuth();
@@ -105,6 +106,12 @@ export default function TeamPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Realtime subscription for team members and workload
+  useRealtimeTables({
+    tables: ["team_members", "team_member_skills", "tasks", "task_assignees"],
+    onChange: loadData,
+  });
 
   const handleOpenAddMember = () => {
     setSelectedMember(null);

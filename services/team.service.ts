@@ -23,206 +23,20 @@ const LOCAL_TEAM_MEMBERS_KEY = "uxi_team_members_store";
 const LOCAL_MEMBER_SKILLS_KEY = "uxi_member_skills_store";
 const LOCAL_GLOBAL_SKILLS_KEY = "uxi_global_skills_store";
 
-export const INITIAL_FULL_TEAM_MEMBERS: TeamMember[] = [
-  {
-    id: "tm-1-ranjith",
-    user_id: "f1-ranjith-uuid",
-    employee_code: "UXI-EMP-001",
-    full_name: "Ranjith",
-    email: "ranjith@uxitech.in",
-    phone: "+91 98765 43210",
-    avatar_url: null,
-    role: "Admin",
-    department: "Executive & Engineering",
-    designation: "Founder & Chief Executive Officer",
-    bio: "Leads company vision, strategic initiatives, executive operations, and end-to-end client solution delivery.",
-    joined_date: "2026-01-01",
-    member_status: "Active",
-    employment_type: "Founder",
-    availability_status: "Available",
-    weekly_capacity_hours: 40,
-    timezone: "Asia/Kolkata",
-    is_founder: true,
-    created_at: "2026-01-01T00:00:00Z",
-    updated_at: "2026-08-29T10:00:00Z",
-  },
-  {
-    id: "tm-2-hafi",
-    user_id: "f2-hafi-uuid",
-    employee_code: "UXI-EMP-002",
-    full_name: "Hafi",
-    email: "hafi@uxitech.in",
-    phone: "+91 98765 43211",
-    avatar_url: null,
-    role: "Admin",
-    department: "Cloud & DevOps",
-    designation: "Co-Founder & Chief Technology Officer",
-    bio: "Oversees technical infrastructure, systems scalability, deployment security, and cloud engineering.",
-    joined_date: "2026-01-01",
-    member_status: "Active",
-    employment_type: "Founder",
-    availability_status: "Focus Mode",
-    weekly_capacity_hours: 40,
-    timezone: "Asia/Kolkata",
-    is_founder: true,
-    created_at: "2026-01-01T00:00:00Z",
-    updated_at: "2026-08-29T11:00:00Z",
-  },
-  {
-    id: "tm-3-vedesh",
-    user_id: "f3-vedesh-uuid",
-    employee_code: "UXI-EMP-003",
-    full_name: "Vedesh",
-    email: "vedesh@uxitech.in",
-    phone: "+91 98765 43212",
-    avatar_url: null,
-    role: "Manager",
-    department: "Product & Experience",
-    designation: "Co-Founder & Head of Product & Design",
-    bio: "Directs product design, user experience architecture, design systems, and aesthetic excellence.",
-    joined_date: "2026-01-01",
-    member_status: "Active",
-    employment_type: "Founder",
-    availability_status: "Busy",
-    weekly_capacity_hours: 40,
-    timezone: "Asia/Kolkata",
-    is_founder: true,
-    created_at: "2026-01-01T00:00:00Z",
-    updated_at: "2026-08-29T12:00:00Z",
-  },
-  {
-    id: "tm-4-praneeth",
-    user_id: "f4-praneeth-uuid",
-    employee_code: "UXI-EMP-004",
-    full_name: "Praneeth",
-    email: "praneeth@uxitech.in",
-    phone: "+91 98765 43213",
-    avatar_url: null,
-    role: "Developer",
-    department: "Software Engineering",
-    designation: "Co-Founder & Lead Software Engineer",
-    bio: "Drives software development, robust API design, database schemas, and client application development.",
-    joined_date: "2026-01-01",
-    member_status: "Active",
-    employment_type: "Founder",
-    availability_status: "Available",
-    weekly_capacity_hours: 40,
-    timezone: "Asia/Kolkata",
-    is_founder: true,
-    created_at: "2026-01-01T00:00:00Z",
-    updated_at: "2026-08-29T13:00:00Z",
-  },
-];
+export const INITIAL_FULL_TEAM_MEMBERS: TeamMember[] = [];
 
-export const INITIAL_SKILLS_STORE: TeamMemberSkill[] = [
-  {
-    id: "tms-1",
-    team_member_id: "tm-1-ranjith",
-    skill_id: "sk-1",
-    skill_name: "Full Stack Architecture",
-    category: "Backend",
-    proficiency_level: "Expert",
-  },
-  {
-    id: "tms-2",
-    team_member_id: "tm-1-ranjith",
-    skill_id: "sk-2",
-    skill_name: "Client Strategy & Scoping",
-    category: "Project Management",
-    proficiency_level: "Expert",
-  },
-  {
-    id: "tms-3",
-    team_member_id: "tm-1-ranjith",
-    skill_id: "sk-3",
-    skill_name: "Next.js & React 19",
-    category: "Frontend",
-    proficiency_level: "Advanced",
-  },
-  {
-    id: "tms-4",
-    team_member_id: "tm-2-hafi",
-    skill_id: "sk-4",
-    skill_name: "Cloud Infrastructure & Docker",
-    category: "DevOps",
-    proficiency_level: "Expert",
-  },
-  {
-    id: "tms-5",
-    team_member_id: "tm-2-hafi",
-    skill_id: "sk-5",
-    skill_name: "CI/CD Pipelines",
-    category: "DevOps",
-    proficiency_level: "Expert",
-  },
-  {
-    id: "tms-6",
-    team_member_id: "tm-2-hafi",
-    skill_id: "sk-6",
-    skill_name: "Security & Auth Architecture",
-    category: "Backend",
-    proficiency_level: "Advanced",
-  },
-  {
-    id: "tms-7",
-    team_member_id: "tm-3-vedesh",
-    skill_id: "sk-7",
-    skill_name: "UI/UX Architecture",
-    category: "UI/UX",
-    proficiency_level: "Expert",
-  },
-  {
-    id: "tms-8",
-    team_member_id: "tm-3-vedesh",
-    skill_id: "sk-8",
-    skill_name: "Figma & Design Systems",
-    category: "UI/UX",
-    proficiency_level: "Expert",
-  },
-  {
-    id: "tms-9",
-    team_member_id: "tm-3-vedesh",
-    skill_id: "sk-9",
-    skill_name: "Three.js & WebGL",
-    category: "Frontend",
-    proficiency_level: "Advanced",
-  },
-  {
-    id: "tms-10",
-    team_member_id: "tm-4-praneeth",
-    skill_id: "sk-10",
-    skill_name: "Next.js & React 19",
-    category: "Frontend",
-    proficiency_level: "Expert",
-  },
-  {
-    id: "tms-11",
-    team_member_id: "tm-4-praneeth",
-    skill_id: "sk-11",
-    skill_name: "Supabase & PostgreSQL",
-    category: "Database",
-    proficiency_level: "Expert",
-  },
-  {
-    id: "tms-12",
-    team_member_id: "tm-4-praneeth",
-    skill_id: "sk-12",
-    skill_name: "GraphQL & REST APIs",
-    category: "Backend",
-    proficiency_level: "Advanced",
-  },
-];
+export const INITIAL_SKILLS_STORE: TeamMemberSkill[] = [];
+
 
 export class TeamService {
   private static getLocalTeam(): TeamMember[] {
-    if (typeof window === "undefined") return INITIAL_FULL_TEAM_MEMBERS;
+    if (typeof window === "undefined") return [];
     try {
       const stored = localStorage.getItem(LOCAL_TEAM_MEMBERS_KEY);
       if (stored) return JSON.parse(stored);
-      localStorage.setItem(LOCAL_TEAM_MEMBERS_KEY, JSON.stringify(INITIAL_FULL_TEAM_MEMBERS));
-      return INITIAL_FULL_TEAM_MEMBERS;
+      return [];
     } catch {
-      return INITIAL_FULL_TEAM_MEMBERS;
+      return [];
     }
   }
 
@@ -236,14 +50,13 @@ export class TeamService {
   }
 
   private static getLocalMemberSkills(): TeamMemberSkill[] {
-    if (typeof window === "undefined") return INITIAL_SKILLS_STORE;
+    if (typeof window === "undefined") return [];
     try {
       const stored = localStorage.getItem(LOCAL_MEMBER_SKILLS_KEY);
       if (stored) return JSON.parse(stored);
-      localStorage.setItem(LOCAL_MEMBER_SKILLS_KEY, JSON.stringify(INITIAL_SKILLS_STORE));
-      return INITIAL_SKILLS_STORE;
+      return [];
     } catch {
-      return INITIAL_SKILLS_STORE;
+      return [];
     }
   }
 

@@ -49,11 +49,16 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
 
       {/* Activity Stream */}
       <div className="mt-4 flex-1 space-y-2.5">
-        {activities.map((act) => {
-          const config = categoryIcons[act.category] || categoryIcons.system;
-          const Icon = config.icon;
+        {activities.length === 0 ? (
+          <div className="py-8 text-center text-xs text-slate-400">
+            No recent activity recorded yet.
+          </div>
+        ) : (
+          activities.map((act) => {
+            const config = categoryIcons[act.category] || categoryIcons.system;
+            const Icon = config.icon;
 
-          return (
+            return (
             <div
               key={act.id}
               className="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors border border-slate-100"
@@ -81,7 +86,7 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
               </div>
             </div>
           );
-        })}
+        }))}
       </div>
     </div>
   );
