@@ -69,7 +69,6 @@ const navigationGroups: NavGroup[] = [
         title: "Leads & Pipeline",
         href: "/leads",
         icon: Target,
-        badge: "7",
       },
       {
         title: "Follow-ups",
@@ -90,13 +89,11 @@ const navigationGroups: NavGroup[] = [
         title: "Projects",
         href: "/projects",
         icon: FolderKanban,
-        badge: "14",
       },
       {
         title: "Clients",
         href: "/clients",
         icon: Users2,
-        badge: "9",
       },
       {
         title: "Tasks & Sprints",
@@ -147,7 +144,6 @@ const navigationGroups: NavGroup[] = [
         title: "Business Alerts",
         href: "/alerts",
         icon: AlertCircle,
-        badge: "5",
       },
       {
         title: "Notifications",

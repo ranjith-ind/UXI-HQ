@@ -16,198 +16,22 @@ import { ProjectService } from "./project.service";
 const LOCAL_INVOICES_KEY = "uxi_invoices_store";
 const LOCAL_INVOICE_ITEMS_KEY = "uxi_invoice_items_store";
 
-export const INITIAL_INVOICES: Invoice[] = [
-  {
-    id: "inv-1",
-    invoice_number: "UXI-INV-2026-001",
-    client_id: "client-1",
-    project_id: "proj-1",
-    invoice_title: "FinPulse Platform Kickoff & Sprint 1 Advance",
-    description: "Initial 50% advance milestone for system architecture, OAuth2 infrastructure, and core API integration.",
-    invoice_type: "Advance",
-    invoice_status: "Paid",
-    subtotal: 250000,
-    discount_amount: 0,
-    tax_amount: 0,
-    total_amount: 250000,
-    amount_paid: 250000,
-    amount_due: 0,
-    issue_date: "2026-08-01",
-    due_date: "2026-08-10",
-    sent_at: "2026-08-01T10:00:00Z",
-    paid_at: "2026-08-05T14:30:00Z",
-    notes: "Payment received in full via HDFC Bank Wire Transfer.",
-    created_by: "f1-ranjith-uuid",
-    created_at: "2026-08-01T09:00:00Z",
-    updated_at: "2026-08-05T14:30:00Z",
-  },
-  {
-    id: "inv-2",
-    invoice_number: "UXI-INV-2026-002",
-    client_id: "client-2",
-    project_id: "proj-2",
-    invoice_title: "Aura Living Headless Storefront 50% Kickoff Advance",
-    description: "Phase 1 advance invoice covering Shopify Plus architecture, Three.js 3D viewer, and checkout prototype.",
-    invoice_type: "Advance",
-    invoice_status: "Paid",
-    subtotal: 175000,
-    discount_amount: 0,
-    tax_amount: 0,
-    total_amount: 175000,
-    amount_paid: 175000,
-    amount_due: 0,
-    issue_date: "2026-08-05",
-    due_date: "2026-08-15",
-    sent_at: "2026-08-05T11:00:00Z",
-    paid_at: "2026-08-09T16:00:00Z",
-    notes: "Settled via ICICI Bank Corporate Transfer.",
-    created_by: "f1-ranjith-uuid",
-    created_at: "2026-08-05T10:00:00Z",
-    updated_at: "2026-08-09T16:00:00Z",
-  },
-  {
-    id: "inv-3",
-    invoice_number: "UXI-INV-2026-003",
-    client_id: "client-2",
-    project_id: "proj-2",
-    invoice_title: "Aura Living Final Delivery & Staging Signoff",
-    description: "Remaining 50% balance milestone for production deployment and headless Shopify go-live.",
-    invoice_type: "Final Payment",
-    invoice_status: "Sent",
-    subtotal: 175000,
-    discount_amount: 0,
-    tax_amount: 0,
-    total_amount: 175000,
-    amount_paid: 0,
-    amount_due: 175000,
-    issue_date: "2026-08-25",
-    due_date: "2026-09-05",
-    sent_at: "2026-08-25T14:00:00Z",
-    paid_at: null,
-    notes: "Invoice sent to accounts@auraliving.co.",
-    created_by: "f1-ranjith-uuid",
-    created_at: "2026-08-25T12:00:00Z",
-    updated_at: "2026-08-25T14:00:00Z",
-  },
-  {
-    id: "inv-4",
-    invoice_number: "UXI-INV-2026-004",
-    client_id: "client-3",
-    project_id: "proj-3",
-    invoice_title: "OmniHealth HIPAA Cloud Telehealth Advance",
-    description: "Kickoff retainer for telehealth platform database schema, encryption, and doctor appointment engine.",
-    invoice_type: "Advance",
-    invoice_status: "Paid",
-    subtotal: 300000,
-    discount_amount: 0,
-    tax_amount: 0,
-    total_amount: 300000,
-    amount_paid: 300000,
-    amount_due: 0,
-    issue_date: "2026-08-10",
-    due_date: "2026-08-20",
-    sent_at: "2026-08-10T10:00:00Z",
-    paid_at: "2026-08-12T11:20:00Z",
-    notes: "Wire transfer confirmed.",
-    created_by: "f2-hafi-uuid",
-    created_at: "2026-08-10T09:00:00Z",
-    updated_at: "2026-08-12T11:20:00Z",
-  },
-  {
-    id: "inv-5",
-    invoice_number: "UXI-INV-2026-005",
-    client_id: "client-4",
-    project_id: "proj-4",
-    invoice_title: "Nexus Global Fleet Tracking System Advance",
-    description: "Milestone 1 for IoT telemetry gateway and freight dispatch dashboard.",
-    invoice_type: "Advance",
-    invoice_status: "Overdue",
-    subtotal: 200000,
-    discount_amount: 0,
-    tax_amount: 0,
-    total_amount: 200000,
-    amount_paid: 0,
-    amount_due: 200000,
-    issue_date: "2026-08-15",
-    due_date: "2026-08-25",
-    sent_at: "2026-08-15T15:00:00Z",
-    paid_at: null,
-    notes: "Follow up with David Sterling regarding pending advance wire.",
-    created_by: "f1-ranjith-uuid",
-    created_at: "2026-08-15T14:00:00Z",
-    updated_at: "2026-08-26T00:00:00Z",
-  },
-];
+export const INITIAL_INVOICES: Invoice[] = [];
 
-export const INITIAL_INVOICE_ITEMS: InvoiceItem[] = [
-  {
-    id: "item-1",
-    invoice_id: "inv-1",
-    item_name: "FinPulse Backend & Database Architecture",
-    description: "Next.js App Router, Supabase PostgreSQL, and OAuth2 security flow",
-    quantity: 1,
-    unit_price: 150000,
-    total: 150000,
-  },
-  {
-    id: "item-2",
-    invoice_id: "inv-1",
-    item_name: "FinPulse Banking Merchant UI & Dashboard",
-    description: "Tailwind CSS responsive executive banking portal",
-    quantity: 1,
-    unit_price: 100000,
-    total: 100000,
-  },
-  {
-    id: "item-3",
-    invoice_id: "inv-2",
-    item_name: "Aura Living 3D WebGL Storefront Prototyping",
-    description: "Three.js luxury product customizer & mobile optimizations",
-    quantity: 1,
-    unit_price: 175000,
-    total: 175000,
-  },
-  {
-    id: "item-4",
-    invoice_id: "inv-3",
-    item_name: "Aura Living Shopify Plus Integration & Production Go-Live",
-    description: "Checkout GraphQL webhooks, CDN caching, and domain setup",
-    quantity: 1,
-    unit_price: 175000,
-    total: 175000,
-  },
-  {
-    id: "item-5",
-    invoice_id: "inv-4",
-    item_name: "OmniHealth HIPAA Consultation Architecture",
-    description: "Video consultation microservices & encrypted electronic health records",
-    quantity: 1,
-    unit_price: 300000,
-    total: 300000,
-  },
-  {
-    id: "item-6",
-    invoice_id: "inv-5",
-    item_name: "Nexus Global Telemetry GPS Ingestion Engine",
-    description: "Real-time socket data streams and driver telemetry dispatch",
-    quantity: 1,
-    unit_price: 200000,
-    total: 200000,
-  },
-];
+export const INITIAL_INVOICE_ITEMS: InvoiceItem[] = [];
 
 export class InvoiceService {
   private static getLocalInvoices(): Invoice[] {
-    if (typeof window === "undefined") return INITIAL_INVOICES;
+    if (typeof window === "undefined") return [];
     try {
       const stored = localStorage.getItem(LOCAL_INVOICES_KEY);
       if (stored) return JSON.parse(stored);
-      localStorage.setItem(LOCAL_INVOICES_KEY, JSON.stringify(INITIAL_INVOICES));
-      return INITIAL_INVOICES;
+      return [];
     } catch {
-      return INITIAL_INVOICES;
+      return [];
     }
   }
+
 
   private static saveLocalInvoices(invoices: Invoice[]) {
     if (typeof window === "undefined") return;
@@ -278,13 +102,17 @@ export class InvoiceService {
         }
 
         const { data, error } = await query;
-        if (error || !data) {
-          rawInvoices = this.getLocalInvoices();
+        if (error) {
+          console.error("Supabase invoice query error:", error);
+          rawInvoices = [];
+        } else if (!data) {
+          rawInvoices = [];
         } else {
           rawInvoices = data as unknown as Invoice[];
         }
-      } catch {
-        rawInvoices = this.getLocalInvoices();
+      } catch (err) {
+        console.error("Supabase invoice query exception:", err);
+        rawInvoices = [];
       }
     } else {
       rawInvoices = this.getLocalInvoices();

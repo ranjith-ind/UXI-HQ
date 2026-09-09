@@ -29,203 +29,20 @@ export const INITIAL_EXPENSE_CATEGORIES: ExpenseCategory[] = DEFAULT_EXPENSE_CAT
   })
 );
 
-export const INITIAL_EXPENSES: Expense[] = [
-  {
-    id: "exp-1",
-    expense_number: "UXI-EXP-2026-001",
-    expense_title: "Vercel Enterprise Pro Deployment Infrastructure",
-    description: "Next.js Turbopack CI/CD pipelines, custom preview deployments, and global edge CDN network.",
-    expense_category_id: "cat-1",
-    category_name: "Hosting & Infrastructure",
-    project_id: null,
-    client_id: null,
-    vendor_name: "Vercel Inc.",
-    vendor_contact: "billing@vercel.com",
-    amount: 4200,
-    expense_date: "2026-08-01",
-    due_date: "2026-08-01",
-    payment_status: "Paid",
-    payment_method: "Credit Card",
-    transaction_reference: "TXN-VERCEL-89218",
-    receipt_url: "https://receipts.uxi.internal/vercel-aug-2026.pdf",
-    is_recurring: true,
-    recurring_frequency: "Monthly",
-    next_recurring_date: "2026-09-01",
-    notes: "Core UXI HQ development & production cluster hosting.",
-    created_by: "f1-ranjith-uuid",
-    created_at: "2026-08-01T09:00:00Z",
-    updated_at: "2026-08-01T09:00:00Z",
-  },
-  {
-    id: "exp-2",
-    expense_number: "UXI-EXP-2026-002",
-    expense_title: "Supabase Pro Managed PostgreSQL & Realtime Cluster",
-    description: "PostgreSQL database tier, Point-in-Time recovery, Auth, and Storage bucket bandwidth.",
-    expense_category_id: "cat-1",
-    category_name: "Hosting & Infrastructure",
-    project_id: null,
-    client_id: null,
-    vendor_name: "Supabase Pte Ltd",
-    vendor_contact: "support@supabase.com",
-    amount: 2100,
-    expense_date: "2026-08-02",
-    due_date: "2026-08-02",
-    payment_status: "Paid",
-    payment_method: "Credit Card",
-    transaction_reference: "TXN-SUPABASE-44102",
-    receipt_url: "https://receipts.uxi.internal/supabase-aug-2026.pdf",
-    is_recurring: true,
-    recurring_frequency: "Monthly",
-    next_recurring_date: "2026-09-02",
-    notes: "UXI HQ multi-tenant production database storage.",
-    created_by: "f2-hafi-uuid",
-    created_at: "2026-08-02T10:00:00Z",
-    updated_at: "2026-08-02T10:00:00Z",
-  },
-  {
-    id: "exp-3",
-    expense_number: "UXI-EXP-2026-003",
-    expense_title: "Figma Professional Product & UI/UX Design Licenses",
-    description: "4 Designer seats for high-fidelity component libraries and prototyping.",
-    expense_category_id: "cat-3",
-    category_name: "Software & Subscriptions",
-    project_id: null,
-    client_id: null,
-    vendor_name: "Figma Inc.",
-    vendor_contact: "sales@figma.com",
-    amount: 6500,
-    expense_date: "2026-08-03",
-    due_date: "2026-08-03",
-    payment_status: "Paid",
-    payment_method: "Credit Card",
-    transaction_reference: "FIGMA-INV-77192",
-    receipt_url: "https://receipts.uxi.internal/figma-aug-2026.pdf",
-    is_recurring: true,
-    recurring_frequency: "Monthly",
-    next_recurring_date: "2026-09-03",
-    notes: "Design team workspace led by Vedesh.",
-    created_by: "f3-vedesh-uuid",
-    created_at: "2026-08-03T11:00:00Z",
-    updated_at: "2026-08-03T11:00:00Z",
-  },
-  {
-    id: "exp-4",
-    expense_number: "UXI-EXP-2026-004",
-    expense_title: "GitHub Team & AI Copilot Workspace Seats",
-    description: "Enterprise private code repositories, automated GitHub Actions compute minutes, and developer AI tools.",
-    expense_category_id: "cat-3",
-    category_name: "Software & Subscriptions",
-    project_id: null,
-    client_id: null,
-    vendor_name: "GitHub / Microsoft",
-    vendor_contact: "billing@github.com",
-    amount: 3800,
-    expense_date: "2026-08-04",
-    due_date: "2026-08-04",
-    payment_status: "Paid",
-    payment_method: "Credit Card",
-    transaction_reference: "GH-CORP-99201",
-    receipt_url: "https://receipts.uxi.internal/github-aug-2026.pdf",
-    is_recurring: true,
-    recurring_frequency: "Monthly",
-    next_recurring_date: "2026-09-04",
-    notes: "Engineering tools managed by Praneeth.",
-    created_by: "f4-praneeth-uuid",
-    created_at: "2026-08-04T12:00:00Z",
-    updated_at: "2026-08-04T12:00:00Z",
-  },
-  {
-    id: "exp-5",
-    expense_number: "UXI-EXP-2026-005",
-    expense_title: "Freelance 3D WebGL Shader Optimization for Aura Living",
-    description: "Contractor payment for specialized GLSL Three.js luxury furniture rendering prototype.",
-    expense_category_id: "cat-5",
-    category_name: "Freelancer Payments",
-    project_id: "proj-2",
-    client_id: "client-2",
-    vendor_name: "Siddharth WebGL Studio",
-    vendor_contact: "siddharth.shaders@gmail.com",
-    amount: 35000,
-    expense_date: "2026-08-11",
-    due_date: "2026-08-11",
-    payment_status: "Paid",
-    payment_method: "Bank Transfer",
-    transaction_reference: "HDFC-NEFT-66391029",
-    receipt_url: "https://receipts.uxi.internal/siddharth-shader-invoice.pdf",
-    is_recurring: false,
-    recurring_frequency: null,
-    next_recurring_date: null,
-    notes: "Direct deliverable for Aura Living storefront 3D customizer.",
-    created_by: "f1-ranjith-uuid",
-    created_at: "2026-08-11T15:00:00Z",
-    updated_at: "2026-08-11T15:00:00Z",
-  },
-  {
-    id: "exp-6",
-    expense_number: "UXI-EXP-2026-006",
-    expense_title: "FinPulse Corporate Domain & EV SSL Security Certificate",
-    description: "High-assurance EV SSL certificate & dedicated security gateway for banking client staging environment.",
-    expense_category_id: "cat-2",
-    category_name: "Domains",
-    project_id: "proj-1",
-    client_id: "client-1",
-    vendor_name: "DigiCert / Namecheap",
-    vendor_contact: "support@namecheap.com",
-    amount: 1800,
-    expense_date: "2026-08-08",
-    due_date: "2026-08-08",
-    payment_status: "Paid",
-    payment_method: "Credit Card",
-    transaction_reference: "NC-SSL-8829104",
-    receipt_url: "https://receipts.uxi.internal/namecheap-ssl.pdf",
-    is_recurring: false,
-    recurring_frequency: null,
-    next_recurring_date: null,
-    notes: "FinPulse staging banking security layer.",
-    created_by: "f2-hafi-uuid",
-    created_at: "2026-08-08T14:00:00Z",
-    updated_at: "2026-08-08T14:00:00Z",
-  },
-  {
-    id: "exp-7",
-    expense_number: "UXI-EXP-2026-007",
-    expense_title: "AWS S3 Encrypted HIPAA Telehealth Media Ingestion",
-    description: "Encrypted object storage cluster for medical consultation recording streams.",
-    expense_category_id: "cat-11",
-    category_name: "Client Project Expenses",
-    project_id: "proj-3",
-    client_id: "client-3",
-    vendor_name: "Amazon Web Services",
-    vendor_contact: "aws-billing@amazon.com",
-    amount: 8500,
-    expense_date: "2026-08-18",
-    due_date: "2026-08-28",
-    payment_status: "Pending",
-    payment_method: "Credit Card",
-    transaction_reference: null,
-    receipt_url: null,
-    is_recurring: true,
-    recurring_frequency: "Monthly",
-    next_recurring_date: "2026-09-18",
-    notes: "OmniHealth HIPAA cloud storage retainer.",
-    created_by: "f2-hafi-uuid",
-    created_at: "2026-08-18T10:00:00Z",
-    updated_at: "2026-08-18T10:00:00Z",
-  },
-];
+export const INITIAL_EXPENSES: Expense[] = [];
 
 export class ExpenseService {
   private static getLocalExpenses(): Expense[] {
-    if (typeof window === "undefined") return INITIAL_EXPENSES;
+    if (typeof window === "undefined") return [];
     try {
       const stored = localStorage.getItem(LOCAL_EXPENSES_KEY);
       if (stored) return JSON.parse(stored);
-      localStorage.setItem(LOCAL_EXPENSES_KEY, JSON.stringify(INITIAL_EXPENSES));
-      return INITIAL_EXPENSES;
+      return [];
     } catch {
-      return INITIAL_EXPENSES;
+      return [];
     }
   }
+
 
   private static saveLocalExpenses(expenses: Expense[]) {
     if (typeof window === "undefined") return;
@@ -379,13 +196,17 @@ export class ExpenseService {
         }
 
         const { data, error } = await query;
-        if (error || !data) {
-          rawExpenses = this.getLocalExpenses();
+        if (error) {
+          console.error("Supabase expense query error:", error);
+          rawExpenses = [];
+        } else if (!data) {
+          rawExpenses = [];
         } else {
           rawExpenses = data as unknown as Expense[];
         }
-      } catch {
-        rawExpenses = this.getLocalExpenses();
+      } catch (err) {
+        console.error("Supabase expense query exception:", err);
+        rawExpenses = [];
       }
     } else {
       rawExpenses = this.getLocalExpenses();

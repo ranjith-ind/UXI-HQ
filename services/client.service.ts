@@ -12,103 +12,22 @@ import { ActivityItem, ProjectSummary } from "@/types";
 const LOCAL_CLIENTS_KEY = "uxi_clients_store";
 const LOCAL_ACTIVITY_KEY = "uxi_activity_store";
 
-export const INITIAL_CLIENTS: Client[] = [
-  {
-    id: "c1-finpulse-uuid",
-    full_name: "Vikramaditya Sharma",
-    company_name: "FinPulse Technologies",
-    email: "vikram@finpulse.io",
-    phone: "+91 98450 11223",
-    whatsapp_number: "+91 98450 11223",
-    location: "Bengaluru, India",
-    website: "https://finpulse.io",
-    client_status: "Active",
-    source: "Referral",
-    notes: "Enterprise fintech platform client. Currently building next-gen banking & merchant web portal.",
-    avatar_url: null,
-    created_at: "2026-07-10T10:00:00Z",
-    updated_at: "2026-08-28T14:30:00Z",
-  },
-  {
-    id: "c2-aura-uuid",
-    full_name: "Sophia Laurent",
-    company_name: "Aura Brands Inc",
-    email: "sophia@aurabrands.com",
-    phone: "+1 (415) 890-3344",
-    whatsapp_number: "+14158903344",
-    location: "San Francisco, USA",
-    website: "https://aurabrands.com",
-    client_status: "Active",
-    source: "Website",
-    notes: "Luxury lifestyle and ecommerce brand. High fidelity UI/UX and headless storefront required.",
-    avatar_url: null,
-    created_at: "2026-07-22T08:15:00Z",
-    updated_at: "2026-08-29T10:45:00Z",
-  },
-  {
-    id: "c3-omnihealth-uuid",
-    full_name: "Dr. Rajesh Menon",
-    company_name: "OmniHealth Care",
-    email: "dr.menon@omnihealth.in",
-    phone: "+91 98840 99882",
-    whatsapp_number: "+91 98840 99882",
-    location: "Hyderabad, India",
-    website: "https://omnihealthcare.in",
-    client_status: "Active",
-    source: "LinkedIn",
-    notes: "Healthcare cloud systems, doctor consultation scheduling and patient records dashboard.",
-    avatar_url: null,
-    created_at: "2026-08-01T12:00:00Z",
-    updated_at: "2026-08-29T12:15:00Z",
-  },
-  {
-    id: "c4-nexus-uuid",
-    full_name: "David Sterling",
-    company_name: "Nexus Freight Ltd",
-    email: "david.s@nexusfreight.co.uk",
-    phone: "+44 20 7946 0912",
-    whatsapp_number: "+442079460912",
-    location: "London, UK",
-    website: "https://nexusfreight.co.uk",
-    client_status: "Lead",
-    source: "Direct Contact",
-    notes: "Global freight logistics and tracking portal CMS redesign. Proposal submitted, awaiting PO.",
-    avatar_url: null,
-    created_at: "2026-08-15T15:30:00Z",
-    updated_at: "2026-08-28T18:20:00Z",
-  },
-  {
-    id: "c5-krypton-uuid",
-    full_name: "Elena Rostova",
-    company_name: "Krypton Labs",
-    email: "elena@kryptonlabs.io",
-    phone: "+971 50 123 4567",
-    whatsapp_number: "+971501234567",
-    location: "Dubai, UAE",
-    website: "https://kryptonlabs.io",
-    client_status: "Completed",
-    source: "Instagram",
-    notes: "Web3 exchange dashboard design and responsive front-end completed on schedule.",
-    avatar_url: null,
-    created_at: "2026-06-20T09:00:00Z",
-    updated_at: "2026-08-20T16:00:00Z",
-  },
-];
+export const INITIAL_CLIENTS: Client[] = [];
 
 export class ClientService {
   private static getLocalClients(): Client[] {
-    if (typeof window === "undefined") return INITIAL_CLIENTS;
+    if (typeof window === "undefined") return [];
     try {
       const stored = localStorage.getItem(LOCAL_CLIENTS_KEY);
       if (stored) {
         return JSON.parse(stored);
       }
-      localStorage.setItem(LOCAL_CLIENTS_KEY, JSON.stringify(INITIAL_CLIENTS));
-      return INITIAL_CLIENTS;
+      return [];
     } catch {
-      return INITIAL_CLIENTS;
+      return [];
     }
   }
+
 
   private static saveLocalClients(clients: Client[]) {
     if (typeof window === "undefined") return;
@@ -190,15 +109,17 @@ export class ClientService {
         }
 
         const { data, error } = await query;
-        if (error || !data) {
-          console.warn("Supabase fetch clients error, fallback to local:", error);
-          clients = this.getLocalClients();
+        if (error) {
+          console.error("Supabase fetch clients error:", error);
+          clients = [];
+        } else if (!data) {
+          clients = [];
         } else {
           clients = data as unknown as Client[];
         }
       } catch (err) {
-        console.warn("Supabase client fetch failed:", err);
-        clients = this.getLocalClients();
+        console.error("Supabase client fetch failed:", err);
+        clients = [];
       }
     } else {
       clients = this.getLocalClients();

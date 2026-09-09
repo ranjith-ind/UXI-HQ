@@ -26,277 +26,21 @@ const LOCAL_LEADS_KEY = "uxi_leads_store";
 const LOCAL_LEAD_ACTIVITIES_KEY = "uxi_lead_activities_store";
 const LOCAL_LEAD_FOLLOWUPS_KEY = "uxi_lead_followups_store";
 
-export const INITIAL_LEADS: Lead[] = [
-  {
-    id: "lead-1",
-    lead_code: "UXI-LEAD-2026-001",
-    full_name: "Aarav Sharma",
-    company_name: "Zenith Logistics Network",
-    email: "aarav@zenithlogistics.in",
-    phone: "+91 98201 44521",
-    whatsapp_number: "+91 98201 44521",
-    location: "Mumbai, Maharashtra",
-    website: "https://zenithlogistics.in",
-    lead_source: "LinkedIn",
-    lead_status: "Negotiation",
-    priority: "High",
-    service_interest: "Web Application",
-    estimated_value: 450000,
-    probability: 85,
-    expected_close_date: "2026-09-10",
-    next_follow_up_date: "2026-09-02",
-    last_contacted_at: "2026-08-27T14:30:00Z",
-    assigned_to: "member-1",
-    description: "Enterprise fleet tracking, multi-warehouse routing dispatch dashboard with realtime GPS driver feeds.",
-    requirements: "Next.js 16 app router, PostgreSQL realtime telemetry, automated billing invoicing, driver mobile PWA.",
-    notes: "Aarav requested a 5% discount on the upfront advance retainer. Final commercial contract submitted.",
-    created_by: "f1-ranjith-uuid",
-    created_at: "2026-08-10T10:00:00Z",
-    updated_at: "2026-08-27T14:30:00Z",
-  },
-  {
-    id: "lead-2",
-    lead_code: "UXI-LEAD-2026-002",
-    full_name: "Dr. Ananya Sen",
-    company_name: "Aethel Diagnostics & Imaging",
-    email: "ananya.sen@aethelclinic.com",
-    phone: "+91 97412 88902",
-    whatsapp_number: "+91 97412 88902",
-    location: "Bengaluru, Karnataka",
-    website: "https://aethelclinic.com",
-    lead_source: "Website",
-    lead_status: "Proposal Sent",
-    priority: "Urgent",
-    service_interest: "Web Application",
-    estimated_value: 320000,
-    probability: 70,
-    expected_close_date: "2026-09-15",
-    next_follow_up_date: "2026-08-30",
-    last_contacted_at: "2026-08-26T11:00:00Z",
-    assigned_to: "member-2",
-    description: "Diagnostic report delivery portal with automated WhatsApp PDF dispatch and doctor appointment scheduling.",
-    requirements: "HIPAA/NABH compliance, encrypted PDF storage on AWS S3, Razorpay payment gateway integration.",
-    notes: "Proposal deck sent on Aug 26. Follow-up scheduled with their Managing Board.",
-    created_by: "f2-hafi-uuid",
-    created_at: "2026-08-12T11:30:00Z",
-    updated_at: "2026-08-26T11:00:00Z",
-  },
-  {
-    id: "lead-3",
-    lead_code: "UXI-LEAD-2026-003",
-    full_name: "Karan Malhotra",
-    company_name: "Kaviar Luxury Living",
-    email: "karan@kaviar.design",
-    phone: "+91 99103 22194",
-    whatsapp_number: "+91 99103 22194",
-    location: "New Delhi, Delhi",
-    website: "https://kaviar.design",
-    lead_source: "Instagram",
-    lead_status: "Discussion",
-    priority: "High",
-    service_interest: "E-Commerce",
-    estimated_value: 280000,
-    probability: 45,
-    expected_close_date: "2026-09-25",
-    next_follow_up_date: "2026-09-01",
-    last_contacted_at: "2026-08-24T16:00:00Z",
-    assigned_to: "member-3",
-    description: "High-end bespoke Italian marble & luxury home furniture catalog with interactive room spatial customizer.",
-    requirements: "Three.js / WebGL 3D model viewer, Shopify Plus headless storefront integration, dark mode aesthetic.",
-    notes: "Vedesh led the design discovery session. Client loved UXI's dark luxury visual portfolio.",
-    created_by: "f3-vedesh-uuid",
-    created_at: "2026-08-15T09:00:00Z",
-    updated_at: "2026-08-24T16:00:00Z",
-  },
-  {
-    id: "lead-4",
-    lead_code: "UXI-LEAD-2026-004",
-    full_name: "Priya Nambiar",
-    company_name: "Nambiar Organics",
-    email: "priya@nambiarorganics.com",
-    phone: "+91 94481 66203",
-    whatsapp_number: "+91 94481 66203",
-    location: "Kochi, Kerala",
-    website: "https://nambiarorganics.com",
-    lead_source: "Direct Contact",
-    lead_status: "Requirement Gathering",
-    priority: "Medium",
-    service_interest: "E-Commerce",
-    estimated_value: 150000,
-    probability: 55,
-    expected_close_date: "2026-09-20",
-    next_follow_up_date: "2026-09-03",
-    last_contacted_at: "2026-08-25T15:00:00Z",
-    assigned_to: "member-4",
-    description: "D2C organic farm products subscription store with automated recurring weekly delivery basket checkout.",
-    requirements: "Custom subscription billing engine, UPI auto-debit, Pin-code delivery validation checker.",
-    notes: "Reviewing delivery logistics partner API specifications.",
-    created_by: "f4-praneeth-uuid",
-    created_at: "2026-08-18T14:00:00Z",
-    updated_at: "2026-08-25T15:00:00Z",
-  },
-  {
-    id: "lead-5",
-    lead_code: "UXI-LEAD-2026-005",
-    full_name: "Rahul Verma",
-    company_name: "Verma Wealth Advisory",
-    email: "rahul@vermawealth.in",
-    phone: "+91 98110 55432",
-    whatsapp_number: "+91 98110 55432",
-    location: "Gurugram, Haryana",
-    website: "https://vermawealth.in",
-    lead_source: "Referral",
-    lead_status: "Qualified",
-    priority: "High",
-    service_interest: "Web Application",
-    estimated_value: 500000,
-    probability: 35,
-    expected_close_date: "2026-10-05",
-    next_follow_up_date: "2026-09-05",
-    last_contacted_at: "2026-08-23T12:00:00Z",
-    assigned_to: "member-1",
-    description: "High-Net-Worth Individual client wealth management portal with live Zerodha/NSE API equity sync.",
-    requirements: "SEBI security guidelines, two-factor SMS authentication, automated portfolio rebalancing reports.",
-    notes: "Referred by FinPulse Banking. Initial discovery call successful.",
-    created_by: "f1-ranjith-uuid",
-    created_at: "2026-08-20T10:00:00Z",
-    updated_at: "2026-08-23T12:00:00Z",
-  },
-  {
-    id: "lead-6",
-    lead_code: "UXI-LEAD-2026-006",
-    full_name: "Meera Joshi",
-    company_name: "Joshi & Partners Legal",
-    email: "meera@joshilegal.com",
-    phone: "+91 98220 33112",
-    whatsapp_number: "+91 98220 33112",
-    location: "Pune, Maharashtra",
-    website: "https://joshilegal.com",
-    lead_source: "Website",
-    lead_status: "Contacted",
-    priority: "Low",
-    service_interest: "Business Website",
-    estimated_value: 120000,
-    probability: 20,
-    expected_close_date: "2026-09-30",
-    next_follow_up_date: "2026-09-04",
-    last_contacted_at: "2026-08-28T16:00:00Z",
-    assigned_to: "member-3",
-    description: "Corporate law firm branding website with attorney case directory and client consultation booking form.",
-    requirements: "Bilingual English/Marathi support, SEO schema for legal practice, appointment calendar.",
-    notes: "Introductory email and company credentials deck sent.",
-    created_by: "f3-vedesh-uuid",
-    created_at: "2026-08-22T16:00:00Z",
-    updated_at: "2026-08-28T16:00:00Z",
-  },
-  {
-    id: "lead-7",
-    lead_code: "UXI-LEAD-2026-007",
-    full_name: "Vikram Patil",
-    company_name: "Matrix Gym Systems",
-    email: "vikram@matrixgyms.com",
-    phone: "+91 99881 77654",
-    whatsapp_number: "+91 99881 77654",
-    location: "Hyderabad, Telangana",
-    website: "https://matrixgyms.com",
-    lead_source: "Instagram",
-    lead_status: "New",
-    priority: "Medium",
-    service_interest: "SaaS Product",
-    estimated_value: 380000,
-    probability: 10,
-    expected_close_date: "2026-10-15",
-    next_follow_up_date: "2026-08-31",
-    last_contacted_at: null,
-    assigned_to: null,
-    description: "Multi-branch gym membership QR-code turnstile access control and personal trainer workout scheduling SaaS.",
-    requirements: "Biometric API sync, QR badge scanner, trainer commission calculations, monthly recurring billing.",
-    notes: "Inbound inquiry via Instagram DM. Need to schedule initial discovery call.",
-    created_by: "f1-ranjith-uuid",
-    created_at: "2026-08-28T18:00:00Z",
-    updated_at: "2026-08-28T18:00:00Z",
-  },
-];
+export const INITIAL_LEADS: Lead[] = [];
 
-export const INITIAL_LEAD_ACTIVITIES: LeadActivity[] = [
-  {
-    id: "act-1",
-    lead_id: "lead-1",
-    activity_type: "Meeting",
-    title: "Commercial Negotiation & SLA Review",
-    description: "Met with Aarav Sharma to finalize milestone disbursements (40/30/30) and server infrastructure budget.",
-    activity_date: "2026-08-27T14:30:00Z",
-    created_by: "f1-ranjith-uuid",
-    created_at: "2026-08-27T14:30:00Z",
-  },
-  {
-    id: "act-2",
-    lead_id: "lead-2",
-    activity_type: "Proposal Sent",
-    title: "Formal Technical Proposal & Architecture Blueprint Dispatched",
-    description: "Sent comprehensive 14-page proposal covering HIPAA storage, WhatsApp report API, and timeline.",
-    activity_date: "2026-08-26T11:00:00Z",
-    created_by: "f2-hafi-uuid",
-    created_at: "2026-08-26T11:00:00Z",
-  },
-  {
-    id: "act-3",
-    lead_id: "lead-3",
-    activity_type: "Call",
-    title: "Design Discovery Call with Vedesh",
-    description: "Walked through luxury branding moodboards, 3D WebGL room visualizer requirements, and sample assets.",
-    activity_date: "2026-08-24T16:00:00Z",
-    created_by: "f3-vedesh-uuid",
-    created_at: "2026-08-24T16:00:00Z",
-  },
-];
+export const INITIAL_LEAD_ACTIVITIES: LeadActivity[] = [];
 
-export const INITIAL_LEAD_FOLLOWUPS: LeadFollowUp[] = [
-  {
-    id: "fup-1",
-    lead_id: "lead-1",
-    follow_up_date: "2026-09-02T11:00:00Z",
-    follow_up_type: "Meeting",
-    notes: "Contract signoff and initial advance invoice settlement meeting with Aarav Sharma.",
-    status: "Pending",
-    completed_at: null,
-    created_by: "f1-ranjith-uuid",
-    created_at: "2026-08-27T15:00:00Z",
-  },
-  {
-    id: "fup-2",
-    lead_id: "lead-2",
-    follow_up_date: "2026-08-30T10:00:00Z",
-    follow_up_type: "Call",
-    notes: "Follow up with Dr. Ananya Sen regarding medical director board approval for proposal.",
-    status: "Pending",
-    completed_at: null,
-    created_by: "f2-hafi-uuid",
-    created_at: "2026-08-26T12:00:00Z",
-  },
-  {
-    id: "fup-3",
-    lead_id: "lead-7",
-    follow_up_date: "2026-08-31T15:00:00Z",
-    follow_up_type: "Call",
-    notes: "Initial discovery call with Vikram Patil regarding gym SaaS scope.",
-    status: "Pending",
-    completed_at: null,
-    created_by: "f1-ranjith-uuid",
-    created_at: "2026-08-28T18:30:00Z",
-  },
-];
+export const INITIAL_LEAD_FOLLOWUPS: LeadFollowUp[] = [];
 
 export class LeadService {
   private static getLocalLeads(): Lead[] {
-    if (typeof window === "undefined") return INITIAL_LEADS;
+    if (typeof window === "undefined") return [];
     try {
       const stored = localStorage.getItem(LOCAL_LEADS_KEY);
       if (stored) return JSON.parse(stored);
-      localStorage.setItem(LOCAL_LEADS_KEY, JSON.stringify(INITIAL_LEADS));
-      return INITIAL_LEADS;
+      return [];
     } catch {
-      return INITIAL_LEADS;
+      return [];
     }
   }
 
@@ -394,13 +138,17 @@ export class LeadService {
         }
 
         const { data, error } = await query;
-        if (error || !data) {
-          rawLeads = this.getLocalLeads();
+        if (error) {
+          console.error("Supabase lead query error:", error);
+          rawLeads = [];
+        } else if (!data) {
+          rawLeads = [];
         } else {
           rawLeads = data as unknown as Lead[];
         }
-      } catch {
-        rawLeads = this.getLocalLeads();
+      } catch (err) {
+        console.error("Supabase lead query exception:", err);
+        rawLeads = [];
       }
     } else {
       rawLeads = this.getLocalLeads();

@@ -18,134 +18,7 @@ import { SprintService } from "./sprint.service";
 const LOCAL_TASKS_KEY = "uxi_tasks_store";
 const LOCAL_TASK_ASSIGNEES_KEY = "uxi_task_assignees_store";
 
-export const INITIAL_TASKS: Task[] = [
-  {
-    id: "task-1",
-    project_id: "proj-1",
-    sprint_id: "sprint-1",
-    title: "Implement Merchant OAuth2 & Multi-Factor Auth Flow",
-    description: "Design secure JWT token rotation and 2FA authentication flow for FinPulse enterprise banking clients.",
-    task_status: "Completed",
-    priority: "Urgent",
-    progress: 100,
-    estimated_hours: 16,
-    actual_hours: 14,
-    start_date: "2026-08-20",
-    due_date: "2026-08-26",
-    completed_at: "2026-08-26T16:30:00Z",
-    created_by: "f1-ranjith-uuid",
-    created_at: "2026-08-20T10:00:00Z",
-    updated_at: "2026-08-26T16:30:00Z",
-  },
-  {
-    id: "task-2",
-    project_id: "proj-1",
-    sprint_id: "sprint-1",
-    title: "Develop Real-Time Transaction Settlement Webhooks",
-    description: "Connect microservice listener for instant credit/debit transaction webhooks and ledger reconciliation.",
-    task_status: "In Progress",
-    priority: "High",
-    progress: 60,
-    estimated_hours: 24,
-    actual_hours: 15,
-    start_date: "2026-08-26",
-    due_date: "2026-09-02",
-    completed_at: null,
-    created_by: "f4-praneeth-uuid",
-    created_at: "2026-08-26T09:00:00Z",
-    updated_at: "2026-08-29T14:00:00Z",
-  },
-  {
-    id: "task-3",
-    project_id: "proj-1",
-    sprint_id: "sprint-1",
-    title: "FinPulse KYC Document Verification UI & Scanner",
-    description: "Interactive client document upload pipeline with image compression and status telemetry.",
-    task_status: "To Do",
-    priority: "Medium",
-    progress: 0,
-    estimated_hours: 12,
-    actual_hours: 0,
-    start_date: "2026-09-01",
-    due_date: "2026-09-08",
-    completed_at: null,
-    created_by: "f1-ranjith-uuid",
-    created_at: "2026-08-28T11:00:00Z",
-    updated_at: "2026-08-28T11:00:00Z",
-  },
-  {
-    id: "task-4",
-    project_id: "proj-2",
-    sprint_id: "sprint-2",
-    title: "Headless 3D Product View Carousel Integration",
-    description: "Optimize Three.js 3D luxury product viewer for mobile touch performance and WebGL rendering.",
-    task_status: "In Review",
-    priority: "High",
-    progress: 85,
-    estimated_hours: 20,
-    actual_hours: 18,
-    start_date: "2026-08-22",
-    due_date: "2026-09-01",
-    completed_at: null,
-    created_by: "f3-vedesh-uuid",
-    created_at: "2026-08-22T10:00:00Z",
-    updated_at: "2026-08-29T11:30:00Z",
-  },
-  {
-    id: "task-5",
-    project_id: "proj-2",
-    sprint_id: "sprint-2",
-    title: "Shopify Plus Headless Checkout & Cart State Synchronization",
-    description: "Synchronize client side cart items with Shopify Plus GraphQL Storefront API.",
-    task_status: "Completed",
-    priority: "Urgent",
-    progress: 100,
-    estimated_hours: 18,
-    actual_hours: 16,
-    start_date: "2026-08-24",
-    due_date: "2026-08-28",
-    completed_at: "2026-08-28T18:00:00Z",
-    created_by: "f4-praneeth-uuid",
-    created_at: "2026-08-24T09:00:00Z",
-    updated_at: "2026-08-28T18:00:00Z",
-  },
-  {
-    id: "task-6",
-    project_id: "proj-3",
-    sprint_id: "sprint-3",
-    title: "HIPAA Compliant Patient Cloud Database Encryption Schema",
-    description: "Design column-level encryption keys and auditing trails for electronic medical records.",
-    task_status: "To Do",
-    priority: "Urgent",
-    progress: 0,
-    estimated_hours: 30,
-    actual_hours: 0,
-    start_date: "2026-09-01",
-    due_date: "2026-09-10",
-    completed_at: null,
-    created_by: "f2-hafi-uuid",
-    created_at: "2026-08-27T12:00:00Z",
-    updated_at: "2026-08-27T12:00:00Z",
-  },
-  {
-    id: "task-7",
-    project_id: "proj-4",
-    sprint_id: null,
-    title: "Draft Logistics Container Tracking Schema & Scope Lock",
-    description: "Define real-time GPS telemetry structure and driver dispatch requirements with David Sterling.",
-    task_status: "Backlog",
-    priority: "Medium",
-    progress: 10,
-    estimated_hours: 8,
-    actual_hours: 2,
-    start_date: "2026-08-29",
-    due_date: "2026-09-12",
-    completed_at: null,
-    created_by: "f1-ranjith-uuid",
-    created_at: "2026-08-29T08:00:00Z",
-    updated_at: "2026-08-29T08:00:00Z",
-  },
-];
+export const INITIAL_TASKS: Task[] = [];
 
 export const INITIAL_SUBTASKS: Subtask[] = [
   {
@@ -205,26 +78,17 @@ export const INITIAL_SUBTASKS: Subtask[] = [
   },
 ];
 
-export const INITIAL_TASK_ASSIGNEES: Record<string, string[]> = {
-  "task-1": ["tm-4-praneeth", "tm-1-ranjith"],
-  "task-2": ["tm-4-praneeth"],
-  "task-3": ["tm-3-vedesh", "tm-1-ranjith"],
-  "task-4": ["tm-3-vedesh"],
-  "task-5": ["tm-4-praneeth", "tm-3-vedesh"],
-  "task-6": ["tm-2-hafi"],
-  "task-7": ["tm-1-ranjith"],
-};
+export const INITIAL_TASK_ASSIGNEES: Record<string, string[]> = {};
 
 export class TaskService {
   private static getLocalTasks(): Task[] {
-    if (typeof window === "undefined") return INITIAL_TASKS;
+    if (typeof window === "undefined") return [];
     try {
       const stored = localStorage.getItem(LOCAL_TASKS_KEY);
       if (stored) return JSON.parse(stored);
-      localStorage.setItem(LOCAL_TASKS_KEY, JSON.stringify(INITIAL_TASKS));
-      return INITIAL_TASKS;
+      return [];
     } catch {
-      return INITIAL_TASKS;
+      return [];
     }
   }
 
@@ -310,13 +174,17 @@ export class TaskService {
         }
 
         const { data, error } = await query;
-        if (error || !data) {
-          rawTasks = this.getLocalTasks();
+        if (error) {
+          console.error("Supabase task query error:", error);
+          rawTasks = [];
+        } else if (!data) {
+          rawTasks = [];
         } else {
           rawTasks = data as unknown as Task[];
         }
-      } catch {
-        rawTasks = this.getLocalTasks();
+      } catch (err) {
+        console.error("Supabase task query exception:", err);
+        rawTasks = [];
       }
     } else {
       rawTasks = this.getLocalTasks().filter((t) => !t.parent_task_id);

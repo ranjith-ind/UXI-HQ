@@ -52,171 +52,24 @@ export const INITIAL_TEAM_MEMBERS = [
   },
 ];
 
-export const INITIAL_PROJECTS: Project[] = [
-  {
-    id: "proj-1",
-    client_id: "c1-finpulse-uuid",
-    project_name: "FinPulse Banking Portal",
-    project_code: "UXI-2026-001",
-    project_type: "Web Application",
-    description: "Next-generation merchant portal and core banking analytics dashboard with KYC verification flow.",
-    requirements: "1. Secure OAuth2 & 2FA Auth\n2. Real-time transaction webhooks\n3. High-throughput ledger reconciliation\n4. Dark mode banking UI",
-    project_status: "Development",
-    priority: "Urgent",
-    estimated_budget: 450000,
-    final_budget: 450000,
-    currency: "INR",
-    advance_amount: 225000,
-    total_paid_amount: 225000,
-    pending_amount: 225000,
-    start_date: "2026-07-28",
-    estimated_deadline: "2026-09-15",
-    actual_completion_date: null,
-    project_url: "https://portal.finpulse.io",
-    repository_url: "https://github.com/uxi-tech/finpulse-banking-portal",
-    project_notes: "Milestone #2 frontend integration is active. Lead engineer Praneeth handling database caching.",
-    is_archived: false,
-    archived_at: null,
-    created_by: "f1-ranjith-uuid",
-    created_at: "2026-07-28T10:00:00Z",
-    updated_at: "2026-08-29T14:30:00Z",
-  },
-  {
-    id: "proj-2",
-    client_id: "c2-aura-uuid",
-    project_name: "Aura Luxury Ecommerce",
-    project_code: "UXI-2026-002",
-    project_type: "E-Commerce Website",
-    description: "Headless luxury brand storefront with 3D product view, Shopify Plus integration and customized checkout experience.",
-    requirements: "1. Headless Next.js storefront\n2. Ultra-fast sub-second page loads\n3. Custom product 3D carousel\n4. Multi-currency checkout",
-    project_status: "Client Review",
-    priority: "High",
-    estimated_budget: 320000,
-    final_budget: 320000,
-    currency: "INR",
-    advance_amount: 200000,
-    total_paid_amount: 200000,
-    pending_amount: 120000,
-    start_date: "2026-07-15",
-    estimated_deadline: "2026-09-05",
-    actual_completion_date: null,
-    project_url: "https://aurabrands.com",
-    repository_url: "https://github.com/uxi-tech/aura-luxury-storefront",
-    project_notes: "Design lead Vedesh presented the staging build to Sophia Laurent. Final sign-off pending this week.",
-    is_archived: false,
-    archived_at: null,
-    created_by: "f3-vedesh-uuid",
-    created_at: "2026-07-15T08:00:00Z",
-    updated_at: "2026-08-29T10:45:00Z",
-  },
-  {
-    id: "proj-3",
-    client_id: "c3-omnihealth-uuid",
-    project_name: "OmniHealth Patient Cloud",
-    project_code: "UXI-2026-003",
-    project_type: "SaaS Platform",
-    description: "Telemedicine patient record portal, automated prescription manager and doctor calendar system.",
-    requirements: "1. HIPAA compliant cloud storage\n2. WebRTC video consultation\n3. Patient health vitals telemetry\n4. SMS/WhatsApp alerts",
-    project_status: "Designing",
-    priority: "High",
-    estimated_budget: 680000,
-    final_budget: 680000,
-    currency: "INR",
-    advance_amount: 340000,
-    total_paid_amount: 340000,
-    pending_amount: 340000,
-    start_date: "2026-08-10",
-    estimated_deadline: "2026-09-28",
-    actual_completion_date: null,
-    project_url: "https://cloud.omnihealthcare.in",
-    repository_url: "https://github.com/uxi-tech/omnihealth-cloud",
-    project_notes: "CTO Hafi leading distributed system setup on Google Cloud with microservices.",
-    is_archived: false,
-    archived_at: null,
-    created_by: "f2-hafi-uuid",
-    created_at: "2026-08-10T12:00:00Z",
-    updated_at: "2026-08-29T12:15:00Z",
-  },
-  {
-    id: "proj-4",
-    client_id: "c4-nexus-uuid",
-    project_name: "Nexus Global Logistics CMS",
-    project_code: "UXI-2026-004",
-    project_type: "Custom Software",
-    description: "Enterprise logistics container tracking, driver route dispatch and multi-warehouse inventory CMS.",
-    requirements: "1. Real-time GPS container tracking\n2. Multi-region warehouse inventory\n3. Driver mobile dispatch",
-    project_status: "Discussion",
-    priority: "Medium",
-    estimated_budget: 520000,
-    final_budget: 520000,
-    currency: "INR",
-    advance_amount: 0,
-    total_paid_amount: 0,
-    pending_amount: 520000,
-    start_date: "2026-08-28",
-    estimated_deadline: "2026-10-12",
-    actual_completion_date: null,
-    project_url: null,
-    repository_url: "https://github.com/uxi-tech/nexus-freight-cms",
-    project_notes: "CEO Ranjith in talks with David Sterling for scope lock and initial 40% advance milestone.",
-    is_archived: false,
-    archived_at: null,
-    created_by: "f1-ranjith-uuid",
-    created_at: "2026-08-28T15:00:00Z",
-    updated_at: "2026-08-28T18:20:00Z",
-  },
-  {
-    id: "proj-5",
-    client_id: "c5-krypton-uuid",
-    project_name: "Krypton Web3 Exchange UI",
-    project_code: "UXI-2026-005",
-    project_type: "Admin Dashboard",
-    description: "High-frequency trading terminal and cryptocurrency liquidity dashboard with WebSockets.",
-    requirements: "1. Low latency WebSocket charts\n2. Orderbook depth visualization\n3. Multi-wallet Web3 connection",
-    project_status: "Completed",
-    priority: "Medium",
-    estimated_budget: 380000,
-    final_budget: 380000,
-    currency: "INR",
-    advance_amount: 380000,
-    total_paid_amount: 380000,
-    pending_amount: 0,
-    start_date: "2026-06-15",
-    estimated_deadline: "2026-08-20",
-    actual_completion_date: "2026-08-20",
-    project_url: "https://kryptonlabs.io",
-    repository_url: "https://github.com/uxi-tech/krypton-exchange-ui",
-    project_notes: "Project completed with 100% client satisfaction and 5-star testimonial.",
-    is_archived: false,
-    archived_at: null,
-    created_by: "f4-praneeth-uuid",
-    created_at: "2026-06-15T09:00:00Z",
-    updated_at: "2026-08-20T16:00:00Z",
-  },
-];
+export const INITIAL_PROJECTS: Project[] = [];
 
-export const INITIAL_PROJECT_MEMBERS: Record<string, string[]> = {
-  "proj-1": ["tm-1-ranjith", "tm-4-praneeth"],
-  "proj-2": ["tm-3-vedesh", "tm-1-ranjith"],
-  "proj-3": ["tm-2-hafi", "tm-4-praneeth"],
-  "proj-4": ["tm-1-ranjith", "tm-2-hafi"],
-  "proj-5": ["tm-4-praneeth", "tm-3-vedesh"],
-};
+export const INITIAL_PROJECT_MEMBERS: Record<string, string[]> = {};
 
 export class ProjectService {
   private static getLocalProjects(): Project[] {
-    if (typeof window === "undefined") return INITIAL_PROJECTS;
+    if (typeof window === "undefined") return [];
     try {
       const stored = localStorage.getItem(LOCAL_PROJECTS_KEY);
       if (stored) {
         return JSON.parse(stored);
       }
-      localStorage.setItem(LOCAL_PROJECTS_KEY, JSON.stringify(INITIAL_PROJECTS));
-      return INITIAL_PROJECTS;
+      return [];
     } catch {
-      return INITIAL_PROJECTS;
+      return [];
     }
   }
+
 
   private static saveLocalProjects(projects: Project[]) {
     if (typeof window === "undefined") return;
@@ -307,13 +160,17 @@ export class ProjectService {
         }
 
         const { data, error } = await query;
-        if (error || !data) {
-          rawProjects = this.getLocalProjects();
+        if (error) {
+          console.error("Supabase project query error:", error);
+          rawProjects = [];
+        } else if (!data) {
+          rawProjects = [];
         } else {
           rawProjects = data as unknown as Project[];
         }
-      } catch {
-        rawProjects = this.getLocalProjects();
+      } catch (err) {
+        console.error("Supabase project query exception:", err);
+        rawProjects = [];
       }
     } else {
       rawProjects = this.getLocalProjects().filter((p) => p.is_archived === isArchivedTarget);
@@ -489,56 +346,92 @@ export class ProjectService {
     const advanceAmount = Number(data.advance_amount || 0);
     const pendingAmount = Math.max(0, finalBudget - advanceAmount);
 
-    const newProject: Project = {
-      id: "proj-" + Math.random().toString(36).substring(2, 9) + Date.now(),
-      client_id: data.client_id,
-      project_name: data.project_name.trim(),
-      project_code: data.project_code?.trim() || this.generateNextProjectCode(),
-      project_type: data.project_type || "Web Application",
-      description: data.description?.trim() || null,
-      requirements: data.requirements?.trim() || null,
-      project_status: data.project_status || "Confirmed",
-      priority: data.priority || "Medium",
-      estimated_budget: Number(data.estimated_budget || 0),
-      final_budget: finalBudget,
-      currency: data.currency || "INR",
-      advance_amount: advanceAmount,
-      total_paid_amount: advanceAmount,
-      pending_amount: pendingAmount,
-      start_date: data.start_date || null,
-      estimated_deadline: data.estimated_deadline || null,
-      actual_completion_date: null,
-      project_url: data.project_url?.trim() || null,
-      repository_url: data.repository_url?.trim() || null,
-      project_notes: data.project_notes?.trim() || null,
-      is_archived: false,
-      archived_at: null,
-      created_by: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-
     if (isSupabaseConfigured()) {
       try {
         const supabase = createClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        const insertPayload: Record<string, unknown> = {
+          client_id: data.client_id,
+          project_name: data.project_name.trim(),
+          project_code: data.project_code?.trim() || this.generateNextProjectCode(),
+          project_type: data.project_type || "Web Application",
+          description: data.description?.trim() || null,
+          requirements: data.requirements?.trim() || null,
+          project_status: data.project_status || "Confirmed",
+          priority: data.priority || "Medium",
+          estimated_budget: Number(data.estimated_budget || 0),
+          final_budget: finalBudget,
+          currency: data.currency || "INR",
+          advance_amount: advanceAmount,
+          total_paid_amount: advanceAmount,
+          pending_amount: pendingAmount,
+          start_date: data.start_date || null,
+          estimated_deadline: data.estimated_deadline || null,
+          actual_completion_date: null,
+          project_url: data.project_url?.trim() || null,
+          repository_url: data.repository_url?.trim() || null,
+          project_notes: data.project_notes?.trim() || null,
+          is_archived: false,
+          archived_at: null,
+          created_by: user?.id || null,
+        };
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: inserted, error } = await (supabase.from("projects") as any)
-          .insert(newProject)
+          .insert(insertPayload)
           .select()
           .single();
 
         if (error) {
+          console.error("Supabase project insert error:", error);
           return { success: false, error: error.message };
         }
 
         const project = inserted as unknown as Project;
-        await ClientService.logActivity(actorName, "created new project", `${project.project_name} (${project.project_code})`, project.id);
+        await ClientService.logActivity(
+          actorName,
+          "created new project",
+          `${project.project_name} (${project.project_code})`,
+          project.id
+        );
         return { success: true, project };
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : "Failed to create project";
         return { success: false, error: msg };
       }
     } else {
+      const newProject: Project = {
+        id: crypto.randomUUID ? crypto.randomUUID() : "proj-" + Date.now(),
+        client_id: data.client_id,
+        project_name: data.project_name.trim(),
+        project_code: data.project_code?.trim() || this.generateNextProjectCode(),
+        project_type: data.project_type || "Web Application",
+        description: data.description?.trim() || null,
+        requirements: data.requirements?.trim() || null,
+        project_status: data.project_status || "Confirmed",
+        priority: data.priority || "Medium",
+        estimated_budget: Number(data.estimated_budget || 0),
+        final_budget: finalBudget,
+        currency: data.currency || "INR",
+        advance_amount: advanceAmount,
+        total_paid_amount: advanceAmount,
+        pending_amount: pendingAmount,
+        start_date: data.start_date || null,
+        estimated_deadline: data.estimated_deadline || null,
+        actual_completion_date: null,
+        project_url: data.project_url?.trim() || null,
+        repository_url: data.repository_url?.trim() || null,
+        project_notes: data.project_notes?.trim() || null,
+        is_archived: false,
+        archived_at: null,
+        created_by: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
       const local = this.getLocalProjects();
       local.unshift(newProject);
       this.saveLocalProjects(local);
@@ -550,10 +443,16 @@ export class ProjectService {
         this.saveLocalMembersMap(membersMap);
       }
 
-      await ClientService.logActivity(actorName, "created new project", `${newProject.project_name} (${newProject.project_code})`, newProject.id);
+      await ClientService.logActivity(
+        actorName,
+        "created new project",
+        `${newProject.project_name} (${newProject.project_code})`,
+        newProject.id
+      );
       return { success: true, project: newProject };
     }
   }
+
 
   static async updateProject(
     id: string,
