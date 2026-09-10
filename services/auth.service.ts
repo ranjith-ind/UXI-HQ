@@ -28,7 +28,7 @@ export class AuthService {
     }
 
     const user = data.user;
-    let role: UserRole = "Admin";
+    let role: UserRole = (user.user_metadata?.role as UserRole) || "Developer";
     let fullName = user.user_metadata?.full_name || user.user_metadata?.name || "Team Member";
     let avatarUrl = user.user_metadata?.avatar_url;
 
@@ -73,7 +73,7 @@ export class AuthService {
       return null;
     }
 
-    let role: UserRole = "Admin";
+    let role: UserRole = (user.user_metadata?.role as UserRole) || "Developer";
     let fullName = user.user_metadata?.full_name || user.user_metadata?.name || "Team Member";
     let avatarUrl = user.user_metadata?.avatar_url;
 

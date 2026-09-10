@@ -213,9 +213,22 @@ export class PaymentService {
     if (isSupabaseConfigured()) {
       try {
         const supabase = createClient();
+        const { data: authData } = await supabase.auth.getUser();
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: inserted, error } = await (supabase.from("payments") as any)
-          .insert(newPayment)
+          .insert({
+            invoice_id: newPayment.invoice_id,
+            client_id: newPayment.client_id,
+            project_id: newPayment.project_id,
+            amount: newPayment.amount,
+            payment_date: newPayment.payment_date,
+            payment_method: newPayment.payment_method,
+            transaction_reference: newPayment.transaction_reference,
+            payment_status: newPayment.payment_status,
+            notes: newPayment.notes,
+            recorded_by: authData?.user?.id || null,
+          })
           .select()
           .single();
 

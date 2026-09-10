@@ -156,9 +156,19 @@ export class SprintService {
     if (isSupabaseConfigured()) {
       try {
         const supabase = createClient();
+        const { data: authData } = await supabase.auth.getUser();
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: inserted, error } = await (supabase.from("sprints") as any)
-          .insert(newSprint)
+          .insert({
+            project_id: newSprint.project_id,
+            name: newSprint.name,
+            goal: newSprint.goal,
+            start_date: newSprint.start_date,
+            end_date: newSprint.end_date,
+            sprint_status: newSprint.sprint_status,
+            created_by: authData?.user?.id || null,
+          })
           .select()
           .single();
 

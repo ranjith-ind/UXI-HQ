@@ -422,9 +422,33 @@ export class ExpenseService {
     if (isSupabaseConfigured()) {
       try {
         const supabase = createClient();
+        const { data: authData } = await supabase.auth.getUser();
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: inserted, error } = await (supabase.from("expenses") as any)
-          .insert(newExpense)
+          .insert({
+            expense_number: newExpense.expense_number,
+            expense_title: newExpense.expense_title,
+            description: newExpense.description,
+            expense_category_id: newExpense.expense_category_id,
+            category_name: newExpense.category_name,
+            project_id: newExpense.project_id,
+            client_id: newExpense.client_id,
+            vendor_name: newExpense.vendor_name,
+            vendor_contact: newExpense.vendor_contact,
+            amount: newExpense.amount,
+            expense_date: newExpense.expense_date,
+            due_date: newExpense.due_date,
+            payment_status: newExpense.payment_status,
+            payment_method: newExpense.payment_method,
+            transaction_reference: newExpense.transaction_reference,
+            receipt_url: newExpense.receipt_url,
+            is_recurring: newExpense.is_recurring,
+            recurring_frequency: newExpense.recurring_frequency,
+            next_recurring_date: newExpense.next_recurring_date,
+            notes: newExpense.notes,
+            created_by: authData?.user?.id || null,
+          })
           .select()
           .single();
         if (error) return { success: false, error: error.message };

@@ -364,32 +364,62 @@ export class LeadService {
     if (isSupabaseConfigured()) {
       try {
         const supabase = createClient();
+        const { data: authData } = await supabase.auth.getUser();
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: inserted, error } = await (supabase.from("leads") as any)
-          .insert(newLead)
+          .insert({
+            lead_code: newLead.lead_code,
+            full_name: newLead.full_name,
+            company_name: newLead.company_name,
+            email: newLead.email,
+            phone: newLead.phone,
+            whatsapp_number: newLead.whatsapp_number,
+            location: newLead.location,
+            website: newLead.website,
+            lead_source: newLead.lead_source,
+            lead_status: newLead.lead_status,
+            priority: newLead.priority,
+            service_interest: newLead.service_interest,
+            estimated_value: newLead.estimated_value,
+            probability: newLead.probability,
+            expected_close_date: newLead.expected_close_date,
+            next_follow_up_date: newLead.next_follow_up_date,
+            last_contacted_at: newLead.last_contacted_at,
+            assigned_to: newLead.assigned_to,
+            description: newLead.description,
+            requirements: newLead.requirements,
+            notes: newLead.notes,
+            lost_reason: newLead.lost_reason,
+            on_hold_reason: newLead.on_hold_reason,
+            resume_date: newLead.resume_date,
+            created_by: authData?.user?.id || null,
+          })
           .select()
           .single();
         if (error) return { success: false, error: error.message };
 
+        const lead = inserted as unknown as Lead;
+
         await ClientService.logActivity(
           actorName,
           "created sales lead",
-          `${newLead.full_name} (${newLead.lead_code})`,
-          newLead.id
+          `${lead.full_name} (${lead.lead_code})`,
+          lead.id
         );
 
         // Record initial activity
         await this.createLeadActivity(
-          newLead.id,
+          lead.id,
           {
             activity_type: "Note",
-            title: `Lead Record Initialized (${newLead.lead_code})`,
-            description: `Lead created from source ${newLead.lead_source} with estimated value ₹${newLead.estimated_value.toLocaleString()}.`,
+            title: `Lead Record Initialized (${lead.lead_code})`,
+            description: `Lead created from source ${lead.lead_source} with estimated value ₹${lead.estimated_value.toLocaleString()}.`,
           },
           actorName
         );
 
-        return { success: true, lead: inserted as unknown as Lead };
+        return { success: true, lead };
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : "Failed to create lead";
         return { success: false, error: msg };

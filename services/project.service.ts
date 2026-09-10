@@ -156,22 +156,48 @@ export class ProjectService {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    let supabaseProjectMembers: Array<{ project_id: string; team_member_id: string }> = [];
+    let allTeamMembers: any[] = [];
+    if (isSupabaseConfigured()) {
+      try {
+        const supabase = createClient();
+        const [{ data: pmData }, { data: tmData }] = await Promise.all([
+          supabase.from("project_members").select("project_id, team_member_id"),
+          supabase.from("team_members").select("*"),
+        ]);
+        if (pmData) supabaseProjectMembers = pmData;
+        if (tmData) allTeamMembers = tmData;
+      } catch {
+        allTeamMembers = INITIAL_TEAM_MEMBERS;
+      }
+    } else {
+      allTeamMembers = INITIAL_TEAM_MEMBERS;
+    }
+
     // Map projects into ProjectWithDetails
     let detailedProjects: ProjectWithDetails[] = rawProjects.map((p) => {
       const client = allClients.find((c) => c.id === p.client_id) || null;
-      const assignedIds = membersMap[p.id] || [];
+      let assignedIds = membersMap[p.id] || [];
+      if (isSupabaseConfigured() && supabaseProjectMembers.length > 0) {
+        const dbAssigned = supabaseProjectMembers
+          .filter((pm) => pm.project_id === p.id)
+          .map((pm) => pm.team_member_id);
+        if (dbAssigned.length > 0) {
+          assignedIds = dbAssigned;
+        }
+      }
       const team_members: ProjectMember[] = [];
       for (const mid of assignedIds) {
-        const tm = INITIAL_TEAM_MEMBERS.find((m) => m.id === mid);
+        const tm = allTeamMembers.find((m) => m.id === mid) || INITIAL_TEAM_MEMBERS.find((m) => m.id === mid);
         if (tm) {
           team_members.push({
             id: `pm-${p.id}-${tm.id}`,
             project_id: p.id,
             team_member_id: tm.id,
-            name: tm.name,
+            name: tm.full_name || tm.name,
             email: tm.email,
             role: tm.role,
-            title: tm.title,
+            title: tm.designation || tm.title,
             avatar_url: tm.avatar_url,
             assigned_at: p.created_at,
           });
@@ -343,9 +369,34 @@ export class ProjectService {
     if (isSupabaseConfigured()) {
       try {
         const supabase = createClient();
+        const { data: authData } = await supabase.auth.getUser();
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: inserted, error } = await (supabase.from("projects") as any)
-          .insert(newProject)
+          .insert({
+            client_id: newProject.client_id,
+            project_name: newProject.project_name,
+            project_code: newProject.project_code,
+            project_type: newProject.project_type,
+            description: newProject.description,
+            requirements: newProject.requirements,
+            project_status: newProject.project_status,
+            priority: newProject.priority,
+            estimated_budget: newProject.estimated_budget,
+            final_budget: newProject.final_budget,
+            currency: newProject.currency,
+            advance_amount: newProject.advance_amount,
+            total_paid_amount: newProject.total_paid_amount,
+            pending_amount: newProject.pending_amount,
+            start_date: newProject.start_date,
+            estimated_deadline: newProject.estimated_deadline,
+            actual_completion_date: newProject.actual_completion_date,
+            project_url: newProject.project_url,
+            repository_url: newProject.repository_url,
+            project_notes: newProject.project_notes,
+            is_archived: newProject.is_archived,
+            created_by: authData?.user?.id || null,
+          })
           .select()
           .single();
 
@@ -354,6 +405,16 @@ export class ProjectService {
         }
 
         const project = inserted as unknown as Project;
+
+        // Save assigned team members to public.project_members
+        if (data.team_member_ids && data.team_member_ids.length > 0) {
+          const memberInserts = data.team_member_ids.map((mid) => ({
+            project_id: project.id,
+            team_member_id: mid,
+          }));
+          await (supabase.from("project_members") as any).insert(memberInserts);
+        }
+
         await ClientService.logActivity(actorName, "created new project", `${project.project_name} (${project.project_code})`, project.id);
         return { success: true, project };
       } catch (err: unknown) {

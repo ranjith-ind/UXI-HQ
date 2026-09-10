@@ -152,23 +152,49 @@ export class TaskService {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    let supabaseTaskAssignees: Array<{ task_id: string; team_member_id: string }> = [];
+    let allTeamMembers: any[] = [];
+    if (isSupabaseConfigured()) {
+      try {
+        const supabase = createClient();
+        const [{ data: taData }, { data: tmData }] = await Promise.all([
+          supabase.from("task_assignees").select("task_id, team_member_id"),
+          supabase.from("team_members").select("*"),
+        ]);
+        if (taData) supabaseTaskAssignees = taData;
+        if (tmData) allTeamMembers = tmData;
+      } catch {
+        allTeamMembers = INITIAL_TEAM_MEMBERS;
+      }
+    } else {
+      allTeamMembers = INITIAL_TEAM_MEMBERS;
+    }
+
     let detailedTasks: TaskWithDetails[] = rawTasks.map((t) => {
       const proj = projects.find((p) => p.id === t.project_id);
       const sprint = sprints.find((s) => s.id === t.sprint_id);
-      const assignedIds = assigneesMap[t.id] || [];
+      let assignedIds = assigneesMap[t.id] || [];
+      if (isSupabaseConfigured() && supabaseTaskAssignees.length > 0) {
+        const dbAssigned = supabaseTaskAssignees
+          .filter((ta) => ta.task_id === t.id)
+          .map((ta) => ta.team_member_id);
+        if (dbAssigned.length > 0) {
+          assignedIds = dbAssigned;
+        }
+      }
 
       const assignees: TaskAssignee[] = [];
       for (const mid of assignedIds) {
-        const member = INITIAL_TEAM_MEMBERS.find((m) => m.id === mid);
+        const member = allTeamMembers.find((m) => m.id === mid) || INITIAL_TEAM_MEMBERS.find((m) => m.id === mid);
         if (member) {
           assignees.push({
             id: `ta-${t.id}-${member.id}`,
             task_id: t.id,
             team_member_id: member.id,
-            name: member.name,
+            name: member.full_name || member.name,
             email: member.email,
             role: member.role,
-            title: member.title,
+            title: member.designation || member.title,
             avatar_url: member.avatar_url,
             assigned_at: t.created_at,
           });
@@ -338,14 +364,59 @@ export class TaskService {
     if (isSupabaseConfigured()) {
       try {
         const supabase = createClient();
+        const { data: authData } = await supabase.auth.getUser();
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: inserted, error } = await (supabase.from("tasks") as any)
-          .insert(newTask)
+          .insert({
+            project_id: newTask.project_id,
+            parent_task_id: newTask.parent_task_id,
+            sprint_id: newTask.sprint_id,
+            title: newTask.title,
+            description: newTask.description,
+            task_status: newTask.task_status,
+            priority: newTask.priority,
+            progress: newTask.progress,
+            estimated_hours: newTask.estimated_hours,
+            actual_hours: newTask.actual_hours,
+            start_date: newTask.start_date,
+            due_date: newTask.due_date,
+            completed_at: newTask.completed_at,
+            created_by: authData?.user?.id || null,
+          })
           .select()
           .single();
 
         if (error) return { success: false, error: error.message };
         const task = inserted as unknown as Task;
+
+        // Insert assignees into public.task_assignees
+        if (data.assignee_ids && data.assignee_ids.length > 0) {
+          const assigneeInserts = data.assignee_ids.map((mid) => ({
+            task_id: task.id,
+            team_member_id: mid,
+          }));
+          await (supabase.from("task_assignees") as any).insert(assigneeInserts);
+        }
+
+        // Insert subtasks into public.tasks if provided
+        if (data.subtasks && data.subtasks.length > 0) {
+          const subtaskInserts = data.subtasks.map((st) => ({
+            parent_task_id: task.id,
+            project_id: task.project_id,
+            title: st.title.trim(),
+            task_status: "To Do",
+            priority: st.priority || "Medium",
+            due_date: st.due_date || null,
+            created_by: authData?.user?.id || null,
+          }));
+          try {
+            await (supabase.from("tasks") as any).insert(subtaskInserts);
+          } catch {
+            // subtasks optional
+          }
+        }
+
         await ClientService.logActivity(actorName, "created task", task.title, task.id);
         return { success: true, task };
       } catch (err: unknown) {

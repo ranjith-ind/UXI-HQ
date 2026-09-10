@@ -244,6 +244,11 @@ export class ClientService {
     if (isSupabaseConfigured()) {
       try {
         const supabase = createClient();
+        const { data: authData } = await supabase.auth.getUser();
+        if (!authData?.user) {
+          return { success: false, error: "Authentication required to create client." };
+        }
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: inserted, error } = await (supabase.from("clients") as any)
           .insert({
@@ -258,6 +263,7 @@ export class ClientService {
             source: newClient.source,
             notes: newClient.notes,
             avatar_url: newClient.avatar_url,
+            created_by: authData.user.id,
           })
           .select()
           .single();

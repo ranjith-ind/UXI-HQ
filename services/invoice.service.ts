@@ -297,9 +297,31 @@ export class InvoiceService {
     if (isSupabaseConfigured()) {
       try {
         const supabase = createClient();
+        const { data: authData } = await supabase.auth.getUser();
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: inserted, error } = await (supabase.from("invoices") as any)
-          .insert(newInvoice)
+          .insert({
+            invoice_number: newInvoice.invoice_number,
+            client_id: newInvoice.client_id,
+            project_id: newInvoice.project_id,
+            invoice_title: newInvoice.invoice_title,
+            description: newInvoice.description,
+            invoice_type: newInvoice.invoice_type,
+            invoice_status: newInvoice.invoice_status,
+            subtotal: newInvoice.subtotal,
+            discount_amount: newInvoice.discount_amount,
+            tax_amount: newInvoice.tax_amount,
+            total_amount: newInvoice.total_amount,
+            amount_paid: newInvoice.amount_paid,
+            amount_due: newInvoice.amount_due,
+            issue_date: newInvoice.issue_date,
+            due_date: newInvoice.due_date,
+            sent_at: newInvoice.sent_at,
+            paid_at: newInvoice.paid_at,
+            notes: newInvoice.notes,
+            created_by: authData?.user?.id || null,
+          })
           .select()
           .single();
 
