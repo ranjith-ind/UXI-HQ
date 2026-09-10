@@ -192,6 +192,16 @@ export default function ClientsPage() {
         </div>
       </div>
 
+      {/* Visual Diagnostic Banner */}
+      <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl flex flex-wrap items-center justify-between text-xs text-blue-900 font-mono">
+        <div>
+          <span className="font-bold text-blue-950">Active Session:</span> {user?.email || "No Email"} (UUID: {user?.id || "None"}) | Role: <span className="font-bold text-indigo-700">{user?.role || "None"}</span>
+        </div>
+        <div className="text-[11px] text-blue-700">
+          Build Commit: <code>diag-active</code>
+        </div>
+      </div>
+
       {/* 2. Client Metrics Strip */}
       <ClientStats stats={stats} loading={loading} />
 

@@ -69,6 +69,14 @@ export class AuthService {
       error,
     } = await supabase.auth.getUser();
 
+    // Safe Diagnostic (Phase 3): Log non-sensitive auth identity
+    console.log("[UXI Auth Identity]", {
+      userExists: !!user,
+      userId: user?.id ?? null,
+      userEmail: user?.email ?? null,
+      authError: error?.message ?? null,
+    });
+
     if (error || !user) {
       return null;
     }
@@ -78,19 +86,28 @@ export class AuthService {
     let avatarUrl = user.user_metadata?.avatar_url;
 
     try {
-      const { data: profile } = await supabase
+      // Phase 2: Inspect profile query
+      const { data: profile, error: profileErr } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", user.id)
         .single();
+
+      console.log("[UXI Profiles Request Diagnostic]", {
+        requestedUserId: user.id,
+        profileFound: !!profile,
+        profileRole: profile?.role ?? null,
+        profileError: profileErr?.message ?? null,
+        profileCode: profileErr?.code ?? null,
+      });
 
       if (profile) {
         role = (profile.role as UserRole) || role;
         fullName = profile.full_name || fullName;
         avatarUrl = profile.avatar_url || avatarUrl;
       }
-    } catch {
-      // Graceful fallback
+    } catch (profileCatch) {
+      console.warn("[UXI Profiles Exception]", profileCatch);
     }
 
     return {
