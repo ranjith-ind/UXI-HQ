@@ -244,9 +244,44 @@ export class ClientService {
     if (isSupabaseConfigured()) {
       try {
         const supabase = createClient();
-        const { data: authData } = await supabase.auth.getUser();
+        const { data: authData, error: authError } = await supabase.auth.getUser();
+
+        // 1. Safe Non-Sensitive Auth Diagnostic (NEVER logs tokens, cookies, or raw claims)
+        console.log("[UXI Auth Diagnostic]", {
+          userExists: !!authData?.user,
+          userId: authData?.user?.id ?? null,
+          userEmail: authData?.user?.email ?? null,
+          authError: authError?.message ?? null,
+        });
+
         if (!authData?.user) {
           return { success: false, error: "Authentication required to create client." };
+        }
+
+        // 2. Safe Pre-Insert Diagnostic
+        console.log("[UXI Insert Diagnostic]", {
+          userId: authData.user.id,
+          createdBy: authData.user.id,
+          insertTable: "clients",
+        });
+
+        // 3. Optional Safe RPC Check using identical Supabase client instance
+        let rpcDiag: {
+          auth_uid?: string | null;
+          is_authenticated_user?: boolean;
+          is_admin_or_manager?: boolean;
+          profile_exists?: boolean;
+          profile_role?: string | null;
+        } | null = null;
+
+        try {
+          const { data: diagData } = await supabase.rpc("check_user_auth_status");
+          if (diagData) {
+            rpcDiag = diagData;
+            console.log("[UXI RPC Diagnostic]", diagData);
+          }
+        } catch {
+          // RPC may not be applied yet
         }
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -269,7 +304,10 @@ export class ClientService {
           .single();
 
         if (error) {
-          return { success: false, error: error.message };
+          const diagDetails = rpcDiag
+            ? ` [Diag: uid=${rpcDiag.auth_uid}, auth=${rpcDiag.is_authenticated_user}, admin=${rpcDiag.is_admin_or_manager}, role=${rpcDiag.profile_role}]`
+            : ` [Diag: uid=${authData.user.id}, email=${authData.user.email}]`;
+          return { success: false, error: `${error.message}${diagDetails}` };
         }
 
         const client = inserted as unknown as Client;
@@ -400,5 +438,26 @@ export class ClientService {
     }
 
     return [];
+  }
+
+  static async checkAuthStatus(): Promise<{
+    auth_uid: string | null;
+    is_authenticated_user: boolean;
+    is_admin_or_manager: boolean;
+    profile_exists: boolean;
+    profile_role: string | null;
+  } | null> {
+    if (!isSupabaseConfigured()) return null;
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase.rpc("check_user_auth_status");
+      if (error) {
+        console.warn("[UXI checkAuthStatus error]", error.message);
+        return null;
+      }
+      return data;
+    } catch {
+      return null;
+    }
   }
 }

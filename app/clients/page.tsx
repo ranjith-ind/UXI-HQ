@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { UserPlus, Sparkles, RefreshCw } from "lucide-react";
+import { UserPlus, Sparkles, RefreshCw, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ClientStats } from "@/components/clients/client-stats";
 import { ClientFilters } from "@/components/clients/client-filters";
@@ -23,7 +23,7 @@ import { useRealtimeTables } from "@/hooks/use-realtime";
 
 export default function ClientsPage() {
   const { user } = useAuth();
-  const { success, error: toastError } = useToast();
+  const { success, error: toastError, info } = useToast();
 
   const [clients, setClients] = useState<ClientWithDetails[]>([]);
   const [stats, setStats] = useState<IClientStats>({
@@ -150,6 +150,26 @@ export default function ClientsPage() {
         </div>
 
         <div className="flex items-center gap-2.5 shrink-0">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={async () => {
+              const diag = await ClientService.checkAuthStatus();
+              if (diag) {
+                info(
+                  "Auth Diagnostic",
+                  `UID: ${diag.auth_uid || "null"} | Role: ${diag.profile_role || "none"} | Admin: ${diag.is_admin_or_manager} | Exists: ${diag.profile_exists}`
+                );
+              } else {
+                toastError("Diagnostic Info", "check_user_auth_status RPC not yet executed or unauthenticated.");
+              }
+            }}
+            className="gap-1.5 text-xs font-semibold"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-slate-500" />
+            <span>Check Auth</span>
+          </Button>
+
           <Button
             variant="secondary"
             size="sm"
