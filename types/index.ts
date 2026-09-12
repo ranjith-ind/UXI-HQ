@@ -375,3 +375,6 @@ export * from "./notification";
 export * from "./activity";
 export * from "./alert";
 
+// Credentials Vault Exports
+export * from "./credential";
+

@@ -446,6 +446,102 @@ export interface Database {
           created_at?: string;
         };
       };
+      project_credentials: {
+        Row: {
+          id: string;
+          project_id: string;
+          name: string;
+          credential_type: string;
+          url: string | null;
+          username: string | null;
+          encrypted_password: string | null;
+          notes: string | null;
+          created_by: string | null;
+          updated_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          name: string;
+          credential_type: string;
+          url?: string | null;
+          username?: string | null;
+          encrypted_password?: string | null;
+          notes?: string | null;
+          created_by?: string | null;
+          updated_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          name?: string;
+          credential_type?: string;
+          url?: string | null;
+          username?: string | null;
+          encrypted_password?: string | null;
+          notes?: string | null;
+          created_by?: string | null;
+          updated_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      credential_custom_fields: {
+        Row: {
+          id: string;
+          credential_id: string;
+          field_name: string;
+          field_value: string;
+          is_sensitive: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          credential_id: string;
+          field_name: string;
+          field_value: string;
+          is_sensitive?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          credential_id?: string;
+          field_name?: string;
+          field_value?: string;
+          is_sensitive?: boolean;
+          created_at?: string;
+        };
+      };
+      credential_activity_logs: {
+        Row: {
+          id: string;
+          credential_id: string;
+          user_id: string | null;
+          user_name: string;
+          action: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          credential_id: string;
+          user_id?: string | null;
+          user_name: string;
+          action: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          credential_id?: string;
+          user_id?: string | null;
+          user_name?: string;
+          action?: string;
+          created_at?: string;
+        };
+      };
     };
   };
 }

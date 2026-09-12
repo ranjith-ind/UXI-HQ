@@ -24,6 +24,7 @@ import {
   Calendar,
   AlertCircle,
   Bell,
+  KeyRound,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UxiLogo } from "@/components/brand/uxi-logo";
@@ -104,6 +105,11 @@ const navigationGroups: NavGroup[] = [
         title: "Team & Workload",
         href: "/team",
         icon: ShieldCheck,
+      },
+      {
+        title: "Credentials",
+        href: "/credentials",
+        icon: KeyRound,
       },
     ],
   },

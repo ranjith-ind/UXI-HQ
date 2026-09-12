@@ -30,6 +30,8 @@ import {
   X,
   ChevronDown,
   Plus,
+  KeyRound,
+  Lock,
 } from "lucide-react";
 import { DetailLayout } from "@/components/ui/detail-layout";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -53,6 +55,12 @@ import { InvoiceService } from "@/services/invoice.service";
 import { PaymentService } from "@/services/payment.service";
 import { ExpenseService } from "@/services/expense.service";
 import { LeadService } from "@/services/lead.service";
+import { CredentialService } from "@/services/credential.service";
+import { CredentialCard } from "@/components/credentials/credential-card";
+import { CredentialFormModal } from "@/components/credentials/credential-form-modal";
+import { CredentialDeleteModal } from "@/components/credentials/credential-delete-modal";
+import { CredentialActivityModal } from "@/components/credentials/credential-activity-modal";
+import { ProjectCredential, CredentialFormData } from "@/types/credential";
 import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge";
 import { InvoiceForm } from "@/components/invoices/invoice-form";
 import { RecordPaymentModal } from "@/components/invoices/record-payment-modal";
@@ -120,6 +128,13 @@ export default function ProjectDetailPage({
   const [selectedInvoiceForPayment, setSelectedInvoiceForPayment] = useState<InvoiceWithDetails | null>(null);
   const [allTeamMembers, setAllTeamMembers] = useState<TeamMemberWithDetails[]>([]);
 
+  // Credentials state
+  const [projectCredentials, setProjectCredentials] = useState<ProjectCredential[]>([]);
+  const [isCredentialFormOpen, setIsCredentialFormOpen] = useState(false);
+  const [selectedCredentialForEdit, setSelectedCredentialForEdit] = useState<ProjectCredential | null>(null);
+  const [credentialToDelete, setCredentialToDelete] = useState<ProjectCredential | null>(null);
+  const [credentialForActivity, setCredentialForActivity] = useState<ProjectCredential | null>(null);
+
   const loadProjectData = useCallback(async () => {
     setLoading(true);
     try {
@@ -133,6 +148,7 @@ export default function ProjectDetailPage({
         fetchedExpenses,
         allLeads,
         fetchedTeam,
+        fetchedCredentials,
       ] = await Promise.all([
         ProjectService.getProjectById(id),
         ClientService.getClients(),
@@ -143,6 +159,7 @@ export default function ProjectDetailPage({
         ExpenseService.getExpenses({ projectId: id }),
         LeadService.getLeads(),
         TeamService.getTeamMembers(),
+        CredentialService.getCredentials({ projectId: id }),
       ]);
 
       if (fetchedProject) {
@@ -165,6 +182,7 @@ export default function ProjectDetailPage({
       setProjectPayments(fetchedPayments);
       setProjectExpenses(fetchedExpenses);
       setAllTeamMembers(fetchedTeam);
+      setProjectCredentials(fetchedCredentials);
 
       // Task calculation
       const total = fetchedTasks.length;
@@ -439,6 +457,14 @@ export default function ProjectDetailPage({
                 <span>Repository</span>
               </a>
             )}
+
+            <Link
+              href={`/projects/${project.id}/credentials`}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200/80 text-emerald-700 hover:bg-emerald-100 text-xs font-semibold transition-all scalemorphic-button"
+            >
+              <KeyRound className="w-3.5 h-3.5" />
+              <span>Vault ({projectCredentials.length})</span>
+            </Link>
           </div>
         </div>
       </div>
@@ -773,6 +799,75 @@ export default function ProjectDetailPage({
               className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3.5 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 shadow-sm"
             />
           </div>
+
+          {/* 🔐 Project Credentials Vault Section */}
+          <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <KeyRound className="w-4 h-4 text-[#2451EB]" />
+                <h3 className="text-sm font-bold text-slate-900 font-display">
+                  Project Credentials Vault ({projectCredentials.length})
+                </h3>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Link
+                  href={`/projects/${project.id}/credentials`}
+                  className="text-xs text-[#2451EB] hover:underline font-semibold"
+                >
+                  Open Full Vault →
+                </Link>
+
+                {user?.role !== "Developer" && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedCredentialForEdit(null);
+                      setIsCredentialFormOpen(true);
+                    }}
+                    className="gap-1 text-xs font-semibold"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Credential</span>
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {projectCredentials.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {projectCredentials.map((cred) => (
+                  <CredentialCard
+                    key={cred.id}
+                    credential={cred}
+                    onEdit={(c) => {
+                      setSelectedCredentialForEdit(c);
+                      setIsCredentialFormOpen(true);
+                    }}
+                    onDelete={(c) => setCredentialToDelete(c)}
+                    onViewActivity={(c) => setCredentialForActivity(c)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-6 text-xs text-slate-400">
+                <Lock className="w-6 h-6 text-slate-300 mx-auto mb-1.5" />
+                <p>No credentials stored for this project yet.</p>
+                {user?.role !== "Developer" && (
+                  <button
+                    onClick={() => {
+                      setSelectedCredentialForEdit(null);
+                      setIsCredentialFormOpen(true);
+                    }}
+                    className="mt-2 text-xs font-semibold text-[#2451EB] hover:underline"
+                  >
+                    + Add first project credential
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -835,6 +930,65 @@ export default function ProjectDetailPage({
           setSelectedInvoiceForPayment(null);
           loadProjectData();
         }}
+      />
+
+      {/* Credentials Modals */}
+      <CredentialFormModal
+        isOpen={isCredentialFormOpen}
+        onClose={() => setIsCredentialFormOpen(false)}
+        onSubmit={async (formData) => {
+          const actor = user?.fullName || "Team Member";
+          if (selectedCredentialForEdit) {
+            const res = await CredentialService.updateCredential(
+              selectedCredentialForEdit.id,
+              formData,
+              actor
+            );
+            if (res.success) {
+              success("Credential Updated", `${formData.name} updated.`);
+              loadProjectData();
+            } else {
+              toastError("Failed to update credential", res.error);
+            }
+          } else {
+            const res = await CredentialService.createCredential(
+              { ...formData, project_id: project.id },
+              actor
+            );
+            if (res.success) {
+              success("Credential Created", `${formData.name} stored in vault.`);
+              loadProjectData();
+            } else {
+              toastError("Failed to create credential", res.error);
+            }
+          }
+        }}
+        projectsList={project ? [project] : []}
+        preselectedProjectId={project.id}
+        initialData={selectedCredentialForEdit}
+        mode={selectedCredentialForEdit ? "edit" : "add"}
+      />
+
+      <CredentialDeleteModal
+        isOpen={!!credentialToDelete}
+        onClose={() => setCredentialToDelete(null)}
+        credential={credentialToDelete}
+        onConfirm={async (cid) => {
+          const actor = user?.fullName || "Team Member";
+          const res = await CredentialService.deleteCredential(cid, actor);
+          if (res.success) {
+            success("Credential Deleted", "Removed from vault.");
+            loadProjectData();
+          } else {
+            toastError("Failed to delete credential", res.error);
+          }
+        }}
+      />
+
+      <CredentialActivityModal
+        isOpen={!!credentialForActivity}
+        onClose={() => setCredentialForActivity(null)}
+        credential={credentialForActivity}
       />
     </div>
   );
