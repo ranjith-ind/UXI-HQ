@@ -65,6 +65,15 @@ CREATE INDEX IF NOT EXISTS idx_credential_custom_fields_credential_id ON public.
 CREATE INDEX IF NOT EXISTS idx_credential_activity_logs_credential_id ON public.credential_activity_logs(credential_id);
 CREATE INDEX IF NOT EXISTS idx_credential_activity_logs_created_at ON public.credential_activity_logs(created_at DESC);
 
+-- Helper function for automatic updated_at timestamp
+CREATE OR REPLACE FUNCTION public.set_current_timestamp_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = timezone('utc'::text, now());
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 -- Trigger for automatic updated_at timestamp
 DROP TRIGGER IF EXISTS trigger_set_project_credentials_updated_at ON public.project_credentials;
 CREATE TRIGGER trigger_set_project_credentials_updated_at
@@ -114,7 +123,7 @@ AS $$
   );
 $$;
 
-GRANT EXECUTE ON FUNCTION public.can_view_project_credentials(UUID) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION public.can_view_project_credentials(UUID) TO authenticated;
 
 -- ------------------------------------------------------------------------------
 -- 6. RLS Policies: project_credentials

@@ -25,7 +25,7 @@ import {
   CREDENTIAL_TYPES_LIST,
   ProjectCredential,
 } from "@/types/credential";
-import { decryptSecret } from "@/lib/crypto/vault-crypto";
+import { CredentialService } from "@/services/credential.service";
 import { ProjectWithDetails } from "@/types/project";
 import { cn } from "@/lib/utils";
 
@@ -65,21 +65,14 @@ export function CredentialFormModal({
 
   useEffect(() => {
     if (initialData) {
-      // Async populate initial password after decrypt
-      let initialPw = "";
-      if (initialData.encrypted_password) {
-        decryptSecret(initialData.encrypted_password).then((plain) => {
-          setFormData((prev) => ({ ...prev, password: plain }));
-        });
-      }
-
+      // In edit mode, populate fields. If password was previously set, leave input empty unless user chooses to overwrite.
       setFormData({
         project_id: initialData.project_id || preselectedProjectId || "",
         name: initialData.name || "",
         credential_type: initialData.credential_type || "Domain",
         url: initialData.url || "",
         username: initialData.username || "",
-        password: initialPw,
+        password: "",
         notes: initialData.notes || "",
         custom_fields: (initialData.custom_fields || []).map((f) => ({
           field_name: f.field_name,
@@ -87,6 +80,18 @@ export function CredentialFormModal({
           is_sensitive: f.is_sensitive,
         })),
       });
+
+      // Optionally fetch plain password for pre-filling edit form
+      if (initialData.encrypted_password) {
+        CredentialService.revealSecret({
+          credentialId: initialData.id,
+          fieldType: "password",
+        }).then((res) => {
+          if (res.success && res.plaintext !== undefined) {
+            setFormData((prev) => ({ ...prev, password: res.plaintext }));
+          }
+        });
+      }
     } else {
       setFormData({
         project_id: preselectedProjectId || (projectsList.length > 0 ? projectsList[0].id : ""),

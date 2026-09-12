@@ -6,7 +6,6 @@ import {
   CredentialFormData,
   CredentialType,
 } from "@/types/credential";
-import { encryptSecret } from "@/lib/crypto/vault-crypto";
 
 const LOCAL_CREDENTIALS_KEY = "uxi_credentials_store";
 const LOCAL_CUSTOM_FIELDS_KEY = "uxi_credential_custom_fields_store";
@@ -104,7 +103,6 @@ export class CredentialService {
         this.saveLocalActivityLogs(logs);
       }
     } catch (err) {
-      // Activity logging should not fail caller action
       console.warn("Failed to log credential activity:", err);
     }
   }
@@ -138,7 +136,8 @@ export class CredentialService {
   }
 
   /**
-   * Fetch credentials with optional filtering (projectId, credentialType, search).
+   * Fetch metadata listings of credentials.
+   * Note: Sensitive passwords remain encrypted envelopes through this boundary.
    */
   static async getCredentials(filters?: {
     projectId?: string;
@@ -183,7 +182,6 @@ export class CredentialService {
           return [];
         }
 
-        // Map joined relation fields
         credentials = (data || []).map((row: any) => ({
           id: row.id,
           project_id: row.project_id,
@@ -297,86 +295,69 @@ export class CredentialService {
   }
 
   /**
-   * Create a new credential with client-side encrypted password and custom fields.
+   * Request decryption of a secret from the trusted server route.
+   * Authorization is verified server-side against database roles and project membership.
+   */
+  static async revealSecret(params: {
+    credentialId: string;
+    fieldType: "password" | "custom_field";
+    customFieldId?: string;
+    action?: "Viewed" | "Copied";
+  }): Promise<{ success: boolean; plaintext?: string; error?: string }> {
+    try {
+      const response = await fetch("/api/vault/credentials/reveal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          credential_id: params.credentialId,
+          field_type: params.fieldType,
+          custom_field_id: params.customFieldId,
+          action: params.action || "Viewed",
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        return {
+          success: false,
+          error: data.error || "Access denied or decryption failed.",
+        };
+      }
+
+      return { success: true, plaintext: data.plaintext };
+    } catch (err: any) {
+      console.error("Error calling reveal API:", err);
+      return { success: false, error: "Network or server error." };
+    }
+  }
+
+  /**
+   * Create a new credential via trusted server-side envelope encryption.
    */
   static async createCredential(
     data: CredentialFormData,
     actorName: string
   ): Promise<{ success: boolean; credential?: ProjectCredential; error?: string }> {
     try {
-      // 1. Client-Side Encrypt password before sending
-      let encryptedPassword = "";
-      if (data.password && data.password.trim()) {
-        encryptedPassword = await encryptSecret(data.password.trim());
-      }
-
-      // 2. Encrypt sensitive custom fields
-      const processedFields = await Promise.all(
-        (data.custom_fields || []).map(async (field) => {
-          let val = field.field_value;
-          if (field.is_sensitive && val) {
-            val = await encryptSecret(val);
-          }
-          return {
-            field_name: field.field_name,
-            field_value: val,
-            is_sensitive: field.is_sensitive,
-          };
-        })
-      );
-
       if (isSupabaseConfigured()) {
-        const supabase = createClient();
-        const { data: authData } = await supabase.auth.getUser();
+        const response = await fetch("/api/vault/credentials", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
 
-        // Insert credential (let PostgreSQL generate UUID)
-        const { data: credRow, error: credErr } = await supabase
-          .from("project_credentials")
-          .insert({
-            project_id: data.project_id,
-            name: data.name.trim(),
-            credential_type: data.credential_type,
-            url: data.url?.trim() || null,
-            username: data.username?.trim() || null,
-            encrypted_password: encryptedPassword || null,
-            notes: data.notes?.trim() || null,
-            created_by: authData?.user?.id || null,
-          })
-          .select()
-          .single();
-
-        if (credErr || !credRow) {
-          console.error("Error creating credential in Supabase:", credErr?.message);
-          return { success: false, error: credErr?.message || "Failed to create credential" };
+        const resData = await response.json();
+        if (!response.ok || !resData.success) {
+          return {
+            success: false,
+            error: resData.error || "Failed to create credential on server.",
+          };
         }
 
-        const credId = credRow.id;
-
-        // Insert custom fields if any
-        if (processedFields.length > 0) {
-          const fieldsToInsert = processedFields.map((f) => ({
-            credential_id: credId,
-            field_name: f.field_name,
-            field_value: f.field_value,
-            is_sensitive: f.is_sensitive,
-          }));
-
-          const { error: fieldErr } = await supabase
-            .from("credential_custom_fields")
-            .insert(fieldsToInsert);
-
-          if (fieldErr) {
-            console.warn("Could not insert custom fields:", fieldErr.message);
-          }
-        }
-
-        // Audit log
-        await this.logActivity(credId, "Created", actorName);
-
-        const created = await this.getCredentialById(credId);
+        const created = await this.getCredentialById(resData.credential.id);
         return { success: true, credential: created || undefined };
       } else {
-        // Fallback local storage
+        // Local offline fallback
         const credId = "cred-" + Math.random().toString(36).substring(2, 9);
         const newCred: ProjectCredential = {
           id: credId,
@@ -385,7 +366,7 @@ export class CredentialService {
           credential_type: data.credential_type,
           url: data.url?.trim() || null,
           username: data.username?.trim() || null,
-          encrypted_password: encryptedPassword || null,
+          encrypted_password: data.password || null,
           notes: data.notes?.trim() || null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
@@ -394,21 +375,6 @@ export class CredentialService {
         const creds = this.getLocalCredentials();
         creds.unshift(newCred);
         this.saveLocalCredentials(creds);
-
-        if (processedFields.length > 0) {
-          const fields = this.getLocalCustomFields();
-          for (const f of processedFields) {
-            fields.push({
-              id: "cf-" + Math.random().toString(36).substring(2, 9),
-              credential_id: credId,
-              field_name: f.field_name,
-              field_value: f.field_value,
-              is_sensitive: f.is_sensitive,
-              created_at: new Date().toISOString(),
-            });
-          }
-          this.saveLocalCustomFields(fields);
-        }
 
         await this.logActivity(credId, "Created", actorName);
         return { success: true, credential: newCred };
@@ -420,7 +386,7 @@ export class CredentialService {
   }
 
   /**
-   * Update an existing credential and its custom fields.
+   * Update an existing credential via trusted server route.
    */
   static async updateCredential(
     id: string,
@@ -428,60 +394,20 @@ export class CredentialService {
     actorName: string
   ): Promise<{ success: boolean; credential?: ProjectCredential; error?: string }> {
     try {
-      const updates: any = {};
-      if (data.project_id) updates.project_id = data.project_id;
-      if (data.name) updates.name = data.name.trim();
-      if (data.credential_type) updates.credential_type = data.credential_type;
-      if (data.url !== undefined) updates.url = data.url?.trim() || null;
-      if (data.username !== undefined) updates.username = data.username?.trim() || null;
-      if (data.notes !== undefined) updates.notes = data.notes?.trim() || null;
-
-      // If new password provided, encrypt it
-      if (data.password && data.password.trim()) {
-        updates.encrypted_password = await encryptSecret(data.password.trim());
-      }
-
       if (isSupabaseConfigured()) {
-        const supabase = createClient();
-        const { data: authData } = await supabase.auth.getUser();
-        updates.updated_by = authData?.user?.id || null;
-        updates.updated_at = new Date().toISOString();
+        const response = await fetch(`/api/vault/credentials/${encodeURIComponent(id)}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
 
-        const { error: updateErr } = await supabase
-          .from("project_credentials")
-          .update(updates)
-          .eq("id", id);
-
-        if (updateErr) {
-          console.error("Error updating credential:", updateErr.message);
-          return { success: false, error: updateErr.message };
+        const resData = await response.json();
+        if (!response.ok || !resData.success) {
+          return {
+            success: false,
+            error: resData.error || "Failed to update credential on server.",
+          };
         }
-
-        // If custom fields provided, replace them
-        if (data.custom_fields) {
-          await supabase.from("credential_custom_fields").delete().eq("credential_id", id);
-
-          const processedFields = await Promise.all(
-            data.custom_fields.map(async (field) => {
-              let val = field.field_value;
-              if (field.is_sensitive && val) {
-                val = await encryptSecret(val);
-              }
-              return {
-                credential_id: id,
-                field_name: field.field_name,
-                field_value: val,
-                is_sensitive: field.is_sensitive,
-              };
-            })
-          );
-
-          if (processedFields.length > 0) {
-            await supabase.from("credential_custom_fields").insert(processedFields);
-          }
-        }
-
-        await this.logActivity(id, "Updated", actorName);
 
         const updated = await this.getCredentialById(id);
         return { success: true, credential: updated || undefined };
@@ -492,29 +418,10 @@ export class CredentialService {
 
         creds[idx] = {
           ...creds[idx],
-          ...updates,
+          name: data.name || creds[idx].name,
           updated_at: new Date().toISOString(),
         };
         this.saveLocalCredentials(creds);
-
-        if (data.custom_fields) {
-          let fields = this.getLocalCustomFields().filter((f) => f.credential_id !== id);
-          for (const f of data.custom_fields) {
-            let val = f.field_value;
-            if (f.is_sensitive && val) {
-              val = await encryptSecret(val);
-            }
-            fields.push({
-              id: "cf-" + Math.random().toString(36).substring(2, 9),
-              credential_id: id,
-              field_name: f.field_name,
-              field_value: val,
-              is_sensitive: f.is_sensitive,
-              created_at: new Date().toISOString(),
-            });
-          }
-          this.saveLocalCustomFields(fields);
-        }
 
         await this.logActivity(id, "Updated", actorName);
         return { success: true, credential: creds[idx] };
@@ -526,34 +433,31 @@ export class CredentialService {
   }
 
   /**
-   * Delete a credential and associated records.
+   * Delete a credential via trusted server route.
    */
   static async deleteCredential(
     id: string,
     actorName: string
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      // Log deletion before removing record
-      await this.logActivity(id, "Deleted", actorName);
-
       if (isSupabaseConfigured()) {
-        const supabase = createClient();
-        const { error } = await supabase.from("project_credentials").delete().eq("id", id);
-        if (error) {
-          console.error("Error deleting credential:", error.message);
-          return { success: false, error: error.message };
+        const response = await fetch(`/api/vault/credentials/${encodeURIComponent(id)}`, {
+          method: "DELETE",
+        });
+
+        const resData = await response.json();
+        if (!response.ok || !resData.success) {
+          return {
+            success: false,
+            error: resData.error || "Failed to delete credential on server.",
+          };
         }
+
         return { success: true };
       } else {
         const creds = this.getLocalCredentials().filter((c) => c.id !== id);
         this.saveLocalCredentials(creds);
-
-        const fields = this.getLocalCustomFields().filter((f) => f.credential_id !== id);
-        this.saveLocalCustomFields(fields);
-
-        const logs = this.getLocalActivityLogs().filter((l) => l.credential_id !== id);
-        this.saveLocalActivityLogs(logs);
-
+        await this.logActivity(id, "Deleted", actorName);
         return { success: true };
       }
     } catch (err: any) {

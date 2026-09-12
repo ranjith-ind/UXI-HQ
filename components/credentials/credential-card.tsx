@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import { ProjectCredential, CredentialCustomField } from "@/types/credential";
 import { CredentialService } from "@/services/credential.service";
-import { decryptSecret } from "@/lib/crypto/vault-crypto";
 import { Badge } from "@/components/ui/badge";
 import { Dropdown, DropdownItem, DropdownSeparator } from "@/components/ui/dropdown";
 import { useAuth } from "@/hooks/use-auth";
@@ -41,7 +40,7 @@ export function CredentialCard({
   onViewActivity,
 }: CredentialCardProps) {
   const { user } = useAuth();
-  const { success } = useToast();
+  const { success, error: toastError } = useToast();
 
   const [revealedPassword, setRevealedPassword] = useState<string | null>(null);
   const [isRevealing, setIsRevealing] = useState(false);
@@ -67,13 +66,17 @@ export function CredentialCard({
 
     setIsRevealing(true);
     try {
-      const plain = await decryptSecret(credential.encrypted_password);
-      setRevealedPassword(plain);
-      await CredentialService.logActivity(
-        credential.id,
-        "Viewed",
-        user?.fullName || "Team Member"
-      );
+      const res = await CredentialService.revealSecret({
+        credentialId: credential.id,
+        fieldType: "password",
+        action: "Viewed",
+      });
+
+      if (res.success && res.plaintext !== undefined) {
+        setRevealedPassword(res.plaintext);
+      } else {
+        toastError("Access Denied", res.error || "Could not decrypt secret.");
+      }
     } finally {
       setIsRevealing(false);
     }
@@ -84,18 +87,23 @@ export function CredentialCard({
 
     let textToCopy = revealedPassword;
     if (!textToCopy) {
-      textToCopy = await decryptSecret(credential.encrypted_password);
+      const res = await CredentialService.revealSecret({
+        credentialId: credential.id,
+        fieldType: "password",
+        action: "Copied",
+      });
+      if (res.success && res.plaintext !== undefined) {
+        textToCopy = res.plaintext;
+      } else {
+        toastError("Access Denied", res.error || "Could not copy secret.");
+        return;
+      }
     }
 
     if (textToCopy) {
       await navigator.clipboard.writeText(textToCopy);
       setCopiedPassword(true);
       success("Password copied", "Copied to clipboard.");
-      await CredentialService.logActivity(
-        credential.id,
-        "Copied",
-        user?.fullName || "Team Member"
-      );
       setTimeout(() => setCopiedPassword(false), 2000);
     }
   };
@@ -118,8 +126,17 @@ export function CredentialCard({
     }
 
     if (field.is_sensitive) {
-      const plain = await decryptSecret(field.field_value);
-      setRevealedCustomFields((prev) => ({ ...prev, [key]: plain }));
+      const res = await CredentialService.revealSecret({
+        credentialId: credential.id,
+        fieldType: "custom_field",
+        customFieldId: field.id,
+        action: "Viewed",
+      });
+      if (res.success && res.plaintext !== undefined) {
+        setRevealedCustomFields((prev) => ({ ...prev, [key]: res.plaintext! }));
+      } else {
+        toastError("Access Denied", res.error || "Could not decrypt custom field.");
+      }
     }
   };
 
@@ -128,15 +145,33 @@ export function CredentialCard({
     index: number
   ) => {
     const key = field.id || `idx-${index}`;
-    let val = revealedCustomFields[key] ?? field.field_value;
-    if (field.is_sensitive && revealedCustomFields[key] === undefined) {
-      val = await decryptSecret(field.field_value);
+    let val = revealedCustomFields[key];
+
+    if (val === undefined) {
+      if (field.is_sensitive) {
+        const res = await CredentialService.revealSecret({
+          credentialId: credential.id,
+          fieldType: "custom_field",
+          customFieldId: field.id,
+          action: "Copied",
+        });
+        if (res.success && res.plaintext !== undefined) {
+          val = res.plaintext;
+        } else {
+          toastError("Access Denied", res.error || "Could not copy parameter.");
+          return;
+        }
+      } else {
+        val = field.field_value;
+      }
     }
 
-    await navigator.clipboard.writeText(val);
-    setCopiedCustomFieldId(key);
-    success(`${field.field_name} copied`, "Copied to clipboard.");
-    setTimeout(() => setCopiedCustomFieldId(null), 2000);
+    if (val !== undefined) {
+      await navigator.clipboard.writeText(val);
+      setCopiedCustomFieldId(key);
+      success(`${field.field_name} copied`, "Copied to clipboard.");
+      setTimeout(() => setCopiedCustomFieldId(null), 2000);
+    }
   };
 
   const getTypeBadgeVariant = (type: string) => {
