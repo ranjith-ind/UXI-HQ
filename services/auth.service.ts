@@ -69,14 +69,6 @@ export class AuthService {
       error,
     } = await supabase.auth.getUser();
 
-    // Safe Diagnostic (Phase 3): Log non-sensitive auth identity
-    console.log("[UXI Auth Identity]", {
-      userExists: !!user,
-      userId: user?.id ?? null,
-      userEmail: user?.email ?? null,
-      authError: error?.message ?? null,
-    });
-
     if (error || !user) {
       return null;
     }
@@ -92,14 +84,6 @@ export class AuthService {
         .select("*")
         .eq("id", user.id)
         .single();
-
-      console.log("[UXI Profiles Request Diagnostic]", {
-        requestedUserId: user.id,
-        profileFound: !!profile,
-        profileRole: profile?.role ?? null,
-        profileError: profileErr?.message ?? null,
-        profileCode: profileErr?.code ?? null,
-      });
 
       if (profile) {
         role = (profile.role as UserRole) || role;

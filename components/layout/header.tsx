@@ -33,6 +33,7 @@ const routeTitles: Record<string, { title: string; subtitle: string }> = {
   "/activity": { title: "Activity Center", subtitle: "Real-time audit log across modules" },
   "/alerts": { title: "Business Alerts", subtitle: "Real-time operational risk diagnostics" },
   "/notifications": { title: "Notifications Center", subtitle: "Dispatch hub & user preferences" },
+  "/credentials": { title: "Credentials Vault", subtitle: "Encrypted project secrets & tokens" },
   "/settings": { title: "Workspace Settings", subtitle: "Security, configuration & members" },
 };
 
@@ -40,10 +41,19 @@ export function Header({ onOpenMobileMenu }: HeaderProps) {
   const pathname = usePathname();
   const [hasSupabase] = useState(() => isSupabaseConfigured());
 
-  const currentRoute = routeTitles[pathname] || {
-    title: "UXI HQ Operating System",
-    subtitle: "Unified Xperience Intelligence",
-  };
+  let currentRoute = routeTitles[pathname];
+  if (!currentRoute && pathname.startsWith("/projects/") && pathname.endsWith("/credentials")) {
+    currentRoute = {
+      title: "Project Credentials",
+      subtitle: "Encrypted environment secrets & access keys",
+    };
+  }
+  if (!currentRoute) {
+    currentRoute = {
+      title: "UXI HQ Operating System",
+      subtitle: "Unified Xperience Intelligence",
+    };
+  }
 
   return (
     <header className="sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b border-[#E6EAF2] bg-white px-4 sm:px-6 transition-colors">

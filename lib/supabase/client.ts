@@ -23,10 +23,5 @@ export function createClient() {
 
   browserClient = createBrowserClient(url, key);
 
-  if (typeof window !== "undefined") {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (window as any).__supabase = browserClient;
-  }
-
   return browserClient;
 }

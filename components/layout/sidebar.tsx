@@ -322,7 +322,7 @@ export function Sidebar({
           {!collapsed && (
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-slate-900 truncate leading-tight">
-                {user?.fullName || "Ranjith"}
+                {user?.fullName || "UXI Member"}
               </p>
               <span className="inline-block text-[10px] text-[#2451EB] font-medium">
                 {user?.role || "Admin"}

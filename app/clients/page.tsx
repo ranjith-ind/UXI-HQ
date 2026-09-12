@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { UserPlus, Sparkles, RefreshCw, ShieldCheck } from "lucide-react";
+import { UserPlus, Sparkles, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ClientStats } from "@/components/clients/client-stats";
 import { ClientFilters } from "@/components/clients/client-filters";
@@ -23,7 +23,7 @@ import { useRealtimeTables } from "@/hooks/use-realtime";
 
 export default function ClientsPage() {
   const { user } = useAuth();
-  const { success, error: toastError, info } = useToast();
+  const { success, error: toastError } = useToast();
 
   const [clients, setClients] = useState<ClientWithDetails[]>([]);
   const [stats, setStats] = useState<IClientStats>({
@@ -153,26 +153,6 @@ export default function ClientsPage() {
           <Button
             variant="secondary"
             size="sm"
-            onClick={async () => {
-              const diag = await ClientService.checkAuthStatus();
-              if (diag) {
-                info(
-                  "Auth Diagnostic",
-                  `UID: ${diag.auth_uid || "null"} | Role: ${diag.profile_role || "none"} | Admin: ${diag.is_admin_or_manager} | Exists: ${diag.profile_exists}`
-                );
-              } else {
-                toastError("Diagnostic Info", "check_user_auth_status RPC not yet executed or unauthenticated.");
-              }
-            }}
-            className="gap-1.5 text-xs font-semibold"
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-slate-500" />
-            <span>Check Auth</span>
-          </Button>
-
-          <Button
-            variant="secondary"
-            size="sm"
             onClick={() => loadData()}
             className="gap-1.5 text-xs font-semibold"
           >
@@ -189,16 +169,6 @@ export default function ClientsPage() {
             <UserPlus className="w-4 h-4" />
             <span>Add New Client</span>
           </Button>
-        </div>
-      </div>
-
-      {/* Visual Diagnostic Banner */}
-      <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl flex flex-wrap items-center justify-between text-xs text-blue-900 font-mono">
-        <div>
-          <span className="font-bold text-blue-950">Active Session:</span> {user?.email || "No Email"} (UUID: {user?.id || "None"}) | Role: <span className="font-bold text-indigo-700">{user?.role || "None"}</span>
-        </div>
-        <div className="text-[11px] text-blue-700">
-          Build Commit: <code>diag-active</code>
         </div>
       </div>
 
