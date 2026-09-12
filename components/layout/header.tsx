@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { usePathname } from "next/navigation";
 import {
   Menu,
@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import { UserMenu } from "./user-menu";
 import { NotificationBell } from "@/components/notifications/notification-bell";
-import { isSupabaseConfigured } from "@/lib/supabase/client";
 
 interface HeaderProps {
   onOpenMobileMenu: () => void;
@@ -39,7 +38,6 @@ const routeTitles: Record<string, { title: string; subtitle: string }> = {
 
 export function Header({ onOpenMobileMenu }: HeaderProps) {
   const pathname = usePathname();
-  const [hasSupabase] = useState(() => isSupabaseConfigured());
 
   let currentRoute = routeTitles[pathname];
   if (!currentRoute && pathname.startsWith("/projects/") && pathname.endsWith("/credentials")) {
@@ -77,7 +75,7 @@ export function Header({ onOpenMobileMenu }: HeaderProps) {
         </div>
       </div>
 
-      {/* Center/Right Section: Search + Notifications + Status + User */}
+      {/* Center/Right Section: Search + Notifications + User */}
       <div className="flex items-center gap-2.5 sm:gap-3">
         {/* Global Search Placeholder */}
         <div className="hidden lg:flex items-center relative w-64 xl:w-72">
@@ -92,25 +90,6 @@ export function Header({ onOpenMobileMenu }: HeaderProps) {
             <Command className="w-2.5 h-2.5" />
             <span>K</span>
           </div>
-        </div>
-
-        {/* Database Status Indicator */}
-        <div
-          title={
-            hasSupabase
-              ? "Connected to Live Supabase Database"
-              : "Disconnected: Supabase Configuration Missing"
-          }
-          className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border border-[#E6EAF2] bg-[#F7F9FC]"
-        >
-          <span
-            className={`w-2 h-2 rounded-full ${
-              hasSupabase ? "bg-emerald-500" : "bg-rose-500"
-            }`}
-          />
-          <span className="text-[#5B6472] font-mono text-[10px]">
-            {hasSupabase ? "Supabase Live" : "Disconnected"}
-          </span>
         </div>
 
         {/* Notifications Real-Time Bell */}
